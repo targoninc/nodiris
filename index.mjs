@@ -23,6 +23,8 @@ if (!existingEditor) {
 const renderer = new NodeDomRenderer(editor);
 renderer.start(document.getElementById("editor"));
 
+/*
 setInterval(() => {
     sessionStorage.setItem("editor", JSON.stringify(editor));
 }, 100);
+ */
