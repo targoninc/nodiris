@@ -1,5 +1,7 @@
-import {EditorNode, NodeEditor, NodeField, NodeType, ValueTypes} from "./lib/node-editor/node-editor.mjs";
+import {NodeEditor, NodeField, NodeType} from "./lib/node-editor/node-editor.mjs";
 import {NodeDomRenderer} from "./lib/node-editor/node-renderer.mjs";
+import {ValueTypes} from "./lib/node-editor/value-types.mjs";
+import {EditorNode} from "./lib/node-editor/editor-node.mjs";
 
 
 const types = [
