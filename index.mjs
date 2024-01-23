@@ -7,6 +7,10 @@ const types = [
         new NodeField("testNumber", ValueTypes.number, 3),
         new NodeField("testString", ValueTypes.string, "test")
     ]),
+    new NodeType("testType2", [
+        new NodeField("testNumberSomething", ValueTypes.number, 2),
+        new NodeField("testNumber", ValueTypes.number, 4),
+    ]),
 ];
 
 const nodes = [

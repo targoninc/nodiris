@@ -89,7 +89,7 @@
     gap: var(--flex-gap);
 }
 
-.node-field-input {
+.node-field-input, .node-field-select, .node-type-select {
     background: var(--node-background);
     border: 1px solid var(--node-border);
     color: var(--editor-text);
@@ -115,6 +115,13 @@
     border: 1px solid var(--node-border);
     border-radius: var(--editor-border-radius);
     z-index: 1;
+}
+
+.node-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--flex-gap);
 }
 
 .node-editor-menu-item {
