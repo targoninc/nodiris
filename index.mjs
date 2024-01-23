@@ -8,12 +8,12 @@ import {NodeType} from "./lib/node-editor/node-type.mjs";
 
 const types = [
     new NodeType("testType", [
-        new NodeField("testNumber", ValueTypes.number, 3),
-        new NodeField("testString", ValueTypes.string, "test")
+        new NodeField("testNumber", ValueTypes.number, 3, true),
+        new NodeField("testString", ValueTypes.string, "test", true)
     ]),
     new NodeType("testType2", [
-        new NodeField("testNumberSomething", ValueTypes.number, 2),
-        new NodeField("testNumber", ValueTypes.number, 4),
+        new NodeField("testNumberSomething", ValueTypes.number, 2, true),
+        new NodeField("testNumber", ValueTypes.number, 4, true),
     ]),
 ];
 
