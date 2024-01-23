@@ -1,16 +1,17 @@
 :root {
+    --node-editor-zoom: 1;
     --editor-background: #000;
     --editor-border: #000;
     --editor-text: #fff;
-    --editor-font-size: 14px;
+    --editor-font-size: calc(14px * var(--node-editor-zoom));
     --editor-border-radius: 4px;
-    --editor-padding: 14px;
-    --editor-padding-small: 6px;
-    --editor-input-padding: 6px 12px;
+    --editor-padding: calc(14px * var(--node-editor-zoom));
+    --editor-padding-small: calc(6px * var(--node-editor-zoom));
+    --editor-input-padding: calc(6px * var(--node-editor-zoom)) calc(12px * var(--node-editor-zoom));
     --editor-connection: #ddd;
     --node-background: #151519;
     --node-border: #2b2b31;
-    --flex-gap: 5px;
+    --flex-gap: calc(5px * var(--node-editor-zoom));
     --error-color: #e43232;
     --outgoing-color: #3279e4;
     --incoming-color: #e4a332;
@@ -111,6 +112,7 @@
     color: var(--editor-text);
     border-radius: var(--editor-border-radius);
     padding: var(--editor-input-padding);
+    max-width: calc(--node-editor-zoom * 20em);
 }
 
 .node-field {
