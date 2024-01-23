@@ -3,9 +3,9 @@
     --editor-background: #000;
     --editor-border: #000;
     --editor-text: #fff;
-    --editor-font-size: calc(14px * var(--node-editor-zoom));
+    --editor-font-size: calc(12px * var(--node-editor-zoom));
     --editor-border-radius: 4px;
-    --editor-padding: calc(14px * var(--node-editor-zoom));
+    --editor-padding: calc(12px * var(--node-editor-zoom));
     --editor-padding-small: calc(6px * var(--node-editor-zoom));
     --editor-input-padding: calc(6px * var(--node-editor-zoom)) calc(12px * var(--node-editor-zoom));
     --editor-connection: #ddd;
