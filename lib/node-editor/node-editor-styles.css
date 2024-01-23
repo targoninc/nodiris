@@ -34,6 +34,7 @@
     color: var(--editor-text);
     font-size: var(--editor-font-size);
     font-family: sans-serif;
+    line-height: 1.5;
 }
 
 .node-editor {
@@ -124,7 +125,7 @@
     color: var(--error-color);
 }
 
-.node-editor-menu {
+.menu {
     position: absolute;
     background-color: var(--node-background);
     border: 1px solid var(--node-border);
@@ -139,13 +140,16 @@
     gap: var(--flex-gap);
 }
 
-.node-editor-menu-item {
+.menu-item {
     cursor: pointer;
     user-select: none;
     padding: var(--editor-padding);
+    display: flex;
+    align-items: center;
+    gap: var(--flex-gap);
 }
 
-.node-editor-menu-item:hover {
+.menu-item:hover {
     background: var(--node-border);
 }
 
@@ -170,4 +174,10 @@
 
 .node.outgoing {
     border: 1px solid var(--outgoing-color);
+}
+
+.icon {
+    filter: invert(1);
+    width: 1.2em;
+    height: 1.2em;
 }
