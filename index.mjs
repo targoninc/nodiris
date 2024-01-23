@@ -1,11 +1,11 @@
-import {EditorNode, NodeEditor, NodeField, NodeType} from "./lib/node-editor/node-editor.mjs";
+import {EditorNode, NodeEditor, NodeField, NodeType, ValueTypes} from "./lib/node-editor/node-editor.mjs";
 import {NodeDomRenderer} from "./lib/node-editor/node-renderer.mjs";
 
 
 const types = [
     new NodeType("testType", [
-        new NodeField("testNumber", "Number", 3),
-        new NodeField("testString", "String", "test")
+        new NodeField("testNumber", ValueTypes.number, 3),
+        new NodeField("testString", ValueTypes.string, "test")
     ]),
 ];
 

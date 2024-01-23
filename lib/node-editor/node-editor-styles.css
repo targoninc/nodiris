@@ -108,3 +108,21 @@
 .node-field-error {
     color: var(--error-color);
 }
+
+.node-editor-menu {
+    position: absolute;
+    background-color: var(--node-background);
+    border: 1px solid var(--node-border);
+    border-radius: var(--editor-border-radius);
+    z-index: 1;
+}
+
+.node-editor-menu-item {
+    cursor: pointer;
+    user-select: none;
+    padding: var(--editor-padding);
+}
+
+.node-editor-menu-item:hover {
+    background: var(--node-border);
+}
