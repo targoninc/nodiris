@@ -5,12 +5,15 @@
     --editor-font-size: 14px;
     --editor-border-radius: 4px;
     --editor-padding: 14px;
+    --editor-padding-small: 6px;
     --editor-input-padding: 6px 12px;
     --editor-connection: #ddd;
     --node-background: #151519;
     --node-border: #2b2b31;
     --flex-gap: 5px;
     --error-color: #e43232;
+    --outgoing-color: #3279e4;
+    --incoming-color: #e4a332;
 }
 
 .hidden {
@@ -132,4 +135,27 @@
 
 .node-editor-menu-item:hover {
     background: var(--node-border);
+}
+
+.node-connection-button {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateX(75%) translateY(-50%);
+    padding: var(--editor-padding-small);
+    background: var(--node-background);
+    border-radius: var(--editor-border-radius);
+    cursor: pointer;
+}
+
+.node-connection-button:hover {
+    background: var(--node-border);
+}
+
+.node.incoming {
+    border: 1px solid var(--incoming-color);
+}
+
+.node.outgoing {
+    border: 1px solid var(--outgoing-color);
 }
