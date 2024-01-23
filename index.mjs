@@ -10,9 +10,11 @@ const types = [
 ];
 
 const nodes = [
-    new EditorNode(types[0])
+    new EditorNode(types[0], { x: -100, y: -100 }),
+    new EditorNode(types[0], { x: 100, y: 100 }),
 ];
 
+nodes[0].connect(nodes[1].id);
 const existingEditor = sessionStorage.getItem("editor");
 let editor;
 if (!existingEditor) {
