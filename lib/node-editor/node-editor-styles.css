@@ -52,6 +52,17 @@
     transform-origin: left top;
 }
 
+.node-connection-arrow {
+    width: 0;
+    height: 0;
+    --arrow-size: 10px;
+    border-top: var(--arrow-size) solid transparent;
+    border-bottom: var(--arrow-size) solid transparent;
+    border-left: var(--arrow-size) solid var(--editor-connection);
+    transform: translate(-50%, -50%);
+    margin: auto;
+}
+
 .node {
     position: absolute;
     width: max-content;
