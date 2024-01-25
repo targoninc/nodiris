@@ -24,7 +24,7 @@ const nodes = [
 ];
 
 const globals = [
-    new GlobalSection("test", {}, [
+    new GlobalSection("test", [
         new InputField("testNumberSome", ValueTypes.number, 4, true),
     ])
 ];
