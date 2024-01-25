@@ -29,9 +29,6 @@
     position: relative;
     background: var(--editor-background);
     overflow: hidden;
-}
-
-.node-editor, .node, .node-editor-connections {
     color: var(--editor-text);
     font-size: var(--editor-font-size);
     font-family: sans-serif;
@@ -113,19 +110,17 @@
     z-index: 2;
 }
 
-.node-fields {
-    display: flex;
-    flex-direction: column;
-    gap: var(--flex-gap);
-}
-
-.node-field-input, .node-field-select, .node-type-select {
+.node-field-input, .node-field-select, .node-type-select, button, input {
     background: var(--node-background);
     border: 1px solid var(--node-border);
     color: var(--editor-text);
     border-radius: var(--editor-border-radius);
     padding: var(--editor-input-padding);
     max-width: calc(--node-editor-zoom * 20em);
+}
+
+button {
+    cursor: pointer;
 }
 
 .node-field {
@@ -195,4 +190,38 @@
     filter: invert(1);
     width: 1.2em;
     height: 1.2em;
+}
+
+.popup-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    backdrop-filter: blur(20px);
+    z-index: 999;
+    display: flex;
+}
+
+.input-popup {
+    margin: auto;
+    width: max-content;
+    color: var(--editor-text);
+    background: var(--node-background);
+    border: 1px solid var(--node-border);
+    border-radius: var(--editor-border-radius);
+    padding: var(--editor-padding);
+}
+
+.flex, .flex-v {
+    display: flex;
+    gap: var(--flex-gap);
+}
+
+.flex-v {
+    flex-direction: column;
+}
+
+.spaced {
+    justify-content: space-between;
 }
