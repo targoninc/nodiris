@@ -29,9 +29,9 @@ const globals = [
     ])
 ];
 
-//nodes[0].connect(nodes[1].id);
-//globals[0].fields[0].connect(nodes[0].fields[0].id);
-//nodes[0].fields[0].connect(nodes[1].fields[0].id);
+nodes[0].connect(nodes[1].id);
+globals[0].fields[0].connect(nodes[0].fields[0].id);
+nodes[0].fields[0].connect(nodes[1].fields[0].id);
 const existingEditor = sessionStorage.getItem("editor");
 let editor;
 if (!existingEditor) {
