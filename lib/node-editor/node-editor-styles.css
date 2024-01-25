@@ -54,9 +54,9 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    z-index: 0;
     pointer-events: none;
-    background-color: var(--editor-background);
+    z-index: 0;
+    background-color: transparent;
 }
 
 .node-connection {
@@ -178,11 +178,11 @@ button {
     background: var(--node-border);
 }
 
-.node.incoming {
+.incoming {
     border: 1px solid var(--incoming-color);
 }
 
-.node.outgoing {
+.outgoing {
     border: 1px solid var(--outgoing-color);
 }
 
