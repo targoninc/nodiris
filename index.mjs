@@ -1,19 +1,19 @@
 import {NodeEditor} from "./lib/node-editor/node-editor.mjs";
-import {NodeDomRenderer} from "./lib/node-editor/node-renderer.mjs";
+import {NodeEditorDomRenderer} from "./lib/node-editor/renderers/dom-renderer.mjs";
 import {ValueTypes} from "./lib/node-editor/value-types.mjs";
 import {EditorNode} from "./lib/node-editor/editor-node.mjs";
-import {NodeField} from "./lib/node-editor/node-field.mjs";
+import {InputField} from "./lib/node-editor/input-field.mjs";
 import {NodeType} from "./lib/node-editor/node-type.mjs";
 
 
 const types = [
     new NodeType("testType", [
-        new NodeField("testNumber", ValueTypes.number, 3, true),
-        new NodeField("testString", ValueTypes.string, "test", true)
+        new InputField("testNumber", ValueTypes.number, 3, true),
+        new InputField("testString", ValueTypes.string, "test", true)
     ]),
     new NodeType("testType2", [
-        new NodeField("testNumberSomething", ValueTypes.number, 2, true),
-        new NodeField("testNumber", ValueTypes.number, 4, true),
+        new InputField("testNumberSomething", ValueTypes.number, 2, true),
+        new InputField("testNumber", ValueTypes.number, 4, true),
     ]),
 ];
 
@@ -30,7 +30,7 @@ if (!existingEditor) {
 } else {
     editor = NodeEditor.fromJSON(JSON.parse(existingEditor));
 }
-const renderer = new NodeDomRenderer(editor);
+const renderer = new NodeEditorDomRenderer(editor);
 renderer.start(document.getElementById("editor"));
 
 /*

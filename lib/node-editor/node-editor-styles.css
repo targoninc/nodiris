@@ -95,9 +95,22 @@
     transform: translate(-50%, -50%);
 }
 
-.node-title {
+.node-title, .global-section-title {
     font-size: calc(var(--editor-font-size) * 1.5);
     user-select: none;
+}
+
+.node-editor-globals {
+    position: absolute;
+    width: 25dvw;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background: var(--node-background);
+    border-right: 1px solid var(--node-border);
+    padding: var(--editor-padding);
+    overflow-y: auto;
+    z-index: 2;
 }
 
 .node-fields {
