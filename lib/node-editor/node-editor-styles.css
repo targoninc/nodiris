@@ -110,7 +110,7 @@
     z-index: 2;
 }
 
-.node-field-input, .node-field-select, .node-type-select, button, input {
+.node-field-input, select, button, input {
     background: var(--node-background);
     border: 1px solid var(--node-border);
     color: var(--editor-text);
