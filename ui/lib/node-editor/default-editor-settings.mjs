@@ -3,4 +3,5 @@ export const DefaultEditorSettings = {
     gridSnapping: true,
     showFieldConnections: false,
     connectionFilter: null,
+    theme: 'dark',
 }

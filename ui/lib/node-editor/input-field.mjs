@@ -110,9 +110,12 @@ export class InputField {
     calculateOutValue(value) {
         if (this.type === ValueTypes.function) {
             const x = value;
-            const calc = eval(this.value);
-            console.log(`Calculated ${this.name} with ${this.value} and value ${value} to ${calc}`);
-            return calc;
+            try {
+                return eval(this.value);
+            } catch (e) {
+                console.error(e);
+                return value;
+            }
         } else {
             return value;
         }

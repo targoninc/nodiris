@@ -280,7 +280,7 @@ button:hover {
     justify-content: space-between;
 }
 
-:disabled {
+input.disabled {
     opacity: 0.5;
-    cursor: not-allowed;
+    user-select: none;
 }

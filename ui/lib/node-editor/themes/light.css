@@ -1,0 +1,19 @@
+:root {
+    --node-editor-zoom: 1;
+    --editor-background: #ddd;
+    --editor-border: #ddd;
+    --editor-text: #151519;
+    --editor-font-size: 12px;
+    --editor-border-radius: 4px;
+    --editor-padding: 12px;
+    --editor-padding-small: 6px;
+    --editor-input-padding: 6px 12px;
+    --editor-connection: #000;
+    --node-editor-grid: none;
+    --node-background: #eaeaea;
+    --node-border: #ccc;
+    --flex-gap: 5px;
+    --error-color: #e43232;
+    --outgoing-color: #3279e4;
+    --incoming-color: #f29a00;
+}

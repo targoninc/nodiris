@@ -37,6 +37,7 @@ export class NodeEditor {
         this.rerender = () => {
             console.log("rerender method is not set. Make sure your renderer is set up correctly.");
         };
+        this.setTheme(this.settings.theme);
     }
 
     addGlobalSection(name) {
@@ -152,6 +153,28 @@ export class NodeEditor {
         return this.fieldHasIncomingConnection(id) && field.type !== ValueTypes.function;
     }
 
+    setTheme(theme) {
+        this.settings.theme = theme;
+        this.removeThemeCss();
+        this.addThemeCss();
+    }
+
+    removeThemeCss() {
+        const stylesheets = document.querySelectorAll("link");
+        for (const stylesheet of stylesheets) {
+            if (stylesheet.href.includes("/themes")) {
+                stylesheet.remove();
+            }
+        }
+    }
+
+    addThemeCss() {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = window.location.origin + `/lib/node-editor/themes/${this.settings.theme}.css`;
+        document.head.appendChild(link);
+    }
+
     startFieldConnection(sourceField) {
         sourceField.highlightAsConnectionSource();
         const fields = this.getAllFields();
@@ -161,10 +184,9 @@ export class NodeEditor {
             }
 
             if (this.fieldTypesAreCompatible(sourceField.type, field.type) && sourceField.canConnectTo(field.id)) {
-                if (this.fieldConnectionWouldRecurse(sourceField, field)) {
-                    continue;
+                if (!this.fieldConnectionWouldRecurse(sourceField, field)) {
+                    field.highlightAsConnectionTarget();
                 }
-                field.highlightAsConnectionTarget();
             }
 
             if (!sourceField.canConnectTo(field.id)) {

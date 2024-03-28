@@ -406,8 +406,7 @@ export class NodeEditorDomRenderer {
                     .id(`${global.name}-${field.id}-connection`)
                     .children(...field.connections.map(connection => this.#renderConnection(connection, "global")))
                     .build();
-            }))
-            .build();
+            })).build();
     }
 
     #renderNode(node, editorSize) {
@@ -575,7 +574,16 @@ export class NodeEditorDomRenderer {
             .ondblclick(e => {
                 field.startConnecting(e);
             })
+            .onkeydown(e => {
+                if (this.editor.fieldIsReadonly(field.id)) {
+                    e.target.value = field.value;
+                    this.editor.rerender();
+                }
+            })
             .onchange(() => {
+                if (this.editor.fieldIsReadonly(field.id)) {
+                    return;
+                }
                 const input = document.getElementById(field.id);
                 if (!input.checkValidity() && (!input.value.startsWith("{{") && !input.value.endsWith("}}"))) {
                     errorState.value = input.validationMessage;
@@ -586,7 +594,7 @@ export class NodeEditorDomRenderer {
             });
 
         if (this.editor.fieldIsReadonly(field.id)) {
-            base.attributes("disabled", "true");
+            base.classes("disabled");
         }
 
         return base.build();
