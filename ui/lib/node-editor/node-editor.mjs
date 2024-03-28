@@ -130,6 +130,8 @@ export class NodeEditor {
                         continue;
                     }
                     node.highlightAsConnectionTarget();
+                } else {
+                    node.highlightAsConnectionRemoval();
                 }
             } else {
                 node.highlightAsConnectionSource();
@@ -153,49 +155,67 @@ export class NodeEditor {
                 continue;
             }
 
-            if (field.type === sourceField.type && sourceField.canConnectTo(field.id)) {
+            if (this.fieldTypesAreCompatible(sourceField.type, field.type) && sourceField.canConnectTo(field.id)) {
                 if (this.fieldConnectionWouldRecurse(sourceField, field)) {
                     continue;
                 }
                 field.highlightAsConnectionTarget();
+            }
+
+            if (!sourceField.canConnectTo(field.id)) {
+                field.highlightAsConnectionRemoval();
             }
         }
     }
 
     finishNodeConnection(fromId, toId) {
         for (const node of this.nodes) {
-            if (node.id !== fromId) {
-                node.unhighlightAsConnectionTarget();
-            } else {
-                node.unhighlightAsConnectionSource();
-            }
+            node.unhighlightAsConnectionTarget();
+            node.unhighlightAsConnectionSource();
+            node.unhighlightAsConnectionRemoval();
         }
         if (!toId) {
             return;
         }
         const fromNode = this.nodes.find(node => node.id === fromId);
         const toNode = this.nodes.find(node => node.id === toId);
+        const isRemoval = !fromNode.canConnectTo(toNode.id);
         if (this.settings.preventCircularConnections) {
             if (this.nodeConnectionWouldRecurse(fromNode, toNode)) {
                 console.log("Connection would recurse. Not connecting.");
                 return;
             }
         }
-        fromNode.connect(toNode.id);
+        if (isRemoval) {
+            fromNode.disconnect(toNode.id);
+        } else {
+            fromNode.connect(toNode.id);
+        }
         this.rerender();
+    }
+
+    fieldTypesAreCompatible(sourceType, targetType) {
+        if (sourceType === targetType) {
+            return true;
+        }
+
+        return sourceType === ValueTypes.function || targetType === ValueTypes.function;
     }
 
     finishFieldConnection(fromId, toId) {
         const fields = this.getAllFields();
         const sourceField = fields.find(field => field.id === fromId);
+        const isRemoval = !sourceField.canConnectTo(toId);
         sourceField.unhighlightAsConnectionSource();
         for (const field of fields) {
             if (field.id === fromId) {
                 continue;
             }
 
-            if (field.type === sourceField.type && sourceField.canConnectTo(field.id)) {
+            if (this.fieldTypesAreCompatible(sourceField.type, field.type) && sourceField.canConnectTo(field.id)) {
                 field.unhighlightAsConnectionTarget();
+            } else {
+                field.unhighlightAsConnectionRemoval();
             }
         }
         if (!toId) {
@@ -203,14 +223,15 @@ export class NodeEditor {
         }
         const fromField = fields.find(field => field.id === fromId);
         const toField = fields.find(field => field.id === toId);
-        if (!fromField.canConnectTo(toField.id)) {
-            return;
+        if (isRemoval) {
+            fromField.disconnect(toField.id);
+        } else {
+            if (this.fieldConnectionWouldRecurse(fromField, toField)) {
+                console.log("Connection would recurse. Not connecting.");
+                return;
+            }
+            fromField.connect(toField.id);
         }
-        if (this.fieldConnectionWouldRecurse(fromField, toField)) {
-            console.log("Connection would recurse. Not connecting.");
-            return;
-        }
-        fromField.connect(toField.id);
         this.rerender();
     }
 

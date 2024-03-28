@@ -20,11 +20,19 @@ export class InputField {
         this.connections = connections ?? [];
         this.id = id ?? IdGenerator.generateId();
         this.value = value ?? defaultValue;
+        this.outValue = value ?? defaultValue;
     }
 
     connect(id) {
         if (!this.connections.find(connection => connection.to === id)) {
             this.connections.push(new EditorConnection(this.id, id));
+        }
+    }
+
+    disconnect(id) {
+        const connection = this.connections.find(connection => connection.to === id);
+        if (connection) {
+            this.connections.splice(this.connections.indexOf(connection), 1);
         }
     }
 
@@ -44,12 +52,20 @@ export class InputField {
         document.getElementById(this.id).classList.add("outgoing");
     }
 
+    highlightAsConnectionRemoval() {
+        document.getElementById(this.id).classList.add("removal");
+    }
+
     unhighlightAsConnectionTarget() {
         document.getElementById(this.id).classList.remove("incoming");
     }
 
     unhighlightAsConnectionSource() {
         document.getElementById(this.id).classList.remove("outgoing");
+    }
+
+    unhighlightAsConnectionRemoval() {
+        document.getElementById(this.id).classList.remove("removal");
     }
 
     startConnecting(e) {
@@ -80,11 +96,25 @@ export class InputField {
                 deleteQueue.push(connection);
                 continue;
             }
-            connectedField.value = this.value;
+            connectedField.outValue = connectedField.calculateOutValue(this.outValue);
+            if (connectedField.type !== ValueTypes.function) {
+                connectedField.value = connectedField.outValue;
+            }
             connectedField.propagateValue();
         }
         for (const connection of deleteQueue) {
             this.connections.splice(this.connections.indexOf(connection), 1);
+        }
+    }
+
+    calculateOutValue(value) {
+        if (this.type === ValueTypes.function) {
+            const x = value;
+            const calc = eval(this.value);
+            console.log(`Calculated ${this.name} with ${this.value} and value ${value} to ${calc}`);
+            return calc;
+        } else {
+            return value;
         }
     }
 

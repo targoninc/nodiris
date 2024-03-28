@@ -37,7 +37,8 @@ export class EditorNode {
         for (const field of this.type.fields) {
             const existingField = previousFields.find(f => f.name === field.name);
             if (existingField) {
-                this.fields.push(new InputField(field.name, field.type, field.default, field.required, this.fields.shown, this.fields.connections.map(connection => new EditorConnection(connection.from, connection.to)), existingField.value, existingField.id));
+                const fieldConnections = existingField.connections.map(connection => new EditorConnection(connection.from, connection.to));
+                this.fields.push(new InputField(field.name, field.type, field.default, field.required, this.fields.shown, fieldConnections, existingField.value, existingField.id));
             } else {
                 this.fields.push(new InputField(field.name, field.type, field.default, field.required, field.shown));
             }
@@ -61,6 +62,13 @@ export class EditorNode {
     connect(id) {
         if (!this.connections.find(connection => connection.to === id)) {
             this.connections.push(new EditorConnection(this.id, id));
+        }
+    }
+
+    disconnect(id) {
+        const connection = this.connections.find(connection => connection.to === id);
+        if (connection) {
+            this.connections.splice(this.connections.indexOf(connection), 1);
         }
     }
 
@@ -154,12 +162,20 @@ export class EditorNode {
         document.getElementById(this.id).classList.add("outgoing");
     }
 
+    highlightAsConnectionRemoval() {
+        document.getElementById(this.id).classList.add("removal");
+    }
+
     unhighlightAsConnectionTarget() {
         document.getElementById(this.id).classList.remove("incoming");
     }
 
     unhighlightAsConnectionSource() {
         document.getElementById(this.id).classList.remove("outgoing");
+    }
+
+    unhighlightAsConnectionRemoval() {
+        document.getElementById(this.id).classList.remove("removal");
     }
 
     startConnecting(e) {

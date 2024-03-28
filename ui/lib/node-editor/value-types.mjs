@@ -4,4 +4,5 @@ export class ValueTypes {
     static boolean = "Boolean";
     static object = "Object";
     static array = "Array";
+    static function = "Function";
 }

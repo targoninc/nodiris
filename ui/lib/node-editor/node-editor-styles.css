@@ -236,6 +236,10 @@ button:hover {
     border: 1px solid var(--outgoing-color);
 }
 
+.removal {
+    border: 1px solid var(--error-color);
+}
+
 .icon {
     filter: invert(1);
     width: 1.2em;

@@ -9,6 +9,7 @@ import {GlobalSection} from "./lib/node-editor/global-section.mjs";
 
 const types = [
     new NodeType("testType", [
+        new InputField("testFunction", ValueTypes.function, "x", true),
         new InputField("testNumber", ValueTypes.number, 3, true),
         new InputField("testString", ValueTypes.string, "test", true)
     ]),

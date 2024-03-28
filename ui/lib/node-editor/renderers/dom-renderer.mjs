@@ -556,8 +556,8 @@ export class NodeEditorDomRenderer {
         let type = field.type;
         if (type === ValueTypes.boolean) {
             type = 'checkbox';
-        } else if (type === ValueTypes.number || type === ValueTypes.string) {
-            type = 'text'
+        } else if (type === ValueTypes.number || type === ValueTypes.string || type === ValueTypes.function) {
+            type = 'text';
         }
 
         const actualValue = this.editor.getValue(field.id);
