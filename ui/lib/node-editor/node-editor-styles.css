@@ -279,3 +279,8 @@ button:hover {
 .spaced {
     justify-content: space-between;
 }
+
+:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

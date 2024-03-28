@@ -147,6 +147,11 @@ export class NodeEditor {
         return this.getAllFields().find(field => field.connections.find(connection => connection.from === id));
     }
 
+    fieldIsReadonly(id) {
+        const field = this.getFieldById(id);
+        return this.fieldHasIncomingConnection(id) && field.type !== ValueTypes.function;
+    }
+
     startFieldConnection(sourceField) {
         sourceField.highlightAsConnectionSource();
         const fields = this.getAllFields();

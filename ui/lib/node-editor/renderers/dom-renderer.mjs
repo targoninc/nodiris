@@ -362,6 +362,10 @@ export class NodeEditorDomRenderer {
                         .classes("node-node-connections")
                         .children(
                             ...node.fields.map(field => {
+                                if (this.editor.settings.connectionFilter && !this.editor.settings.connectionFilter.includes(field.name)) {
+                                    return null;
+                                }
+
                                 return FJS.create("div")
                                     .classes("node-connection")
                                     .id(`${node.id}-${field.id}-connection`)
@@ -561,7 +565,7 @@ export class NodeEditorDomRenderer {
         }
 
         const actualValue = this.editor.getValue(field.id);
-        return FJS.create("input")
+        const base = FJS.create("input")
             .classes("node-field-input")
             .type(type.toLowerCase())
             .value(value)
@@ -579,8 +583,13 @@ export class NodeEditorDomRenderer {
                     errorState.value = '';
                     onChange(field.getValue(input.value));
                 }
-            })
-            .build();
+            });
+
+        if (this.editor.fieldIsReadonly(field.id)) {
+            base.attributes("disabled", "true");
+        }
+
+        return base.build();
     }
 
     #renderInputField(field, value, onChange) {
