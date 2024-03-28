@@ -2,6 +2,7 @@ import {EditorConnection} from "./editor-connection.mjs";
 import {FjsObservable} from "https://fjs.targoninc.com/f.js";
 import {IdGenerator} from "./id-generator.mjs";
 import {InputField} from "./input-field.mjs";
+import {ValueTypes} from "./value-types.mjs";
 
 export class EditorNode {
     /**
@@ -52,6 +53,17 @@ export class EditorNode {
     set(name, value) {
         const field = this.fields.find(field => field.name === name);
         field.value = value;
+        if (field.type === ValueTypes.function && field.value.includes("Date.now()")) {
+            if (this.updateInterval) {
+                clearInterval(this.updateInterval);
+            }
+            this.updateInterval = setInterval(() => {
+                field.propagateValue();
+                window.nodeEditor.rerender();
+            }, 100);
+        } else if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+        }
         field.propagateValue();
     }
 

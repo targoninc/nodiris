@@ -284,3 +284,9 @@ input.disabled {
     opacity: 0.5;
     user-select: none;
 }
+
+.global-section-fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--flex-gap);
+}

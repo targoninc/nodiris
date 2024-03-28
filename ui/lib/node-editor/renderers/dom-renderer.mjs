@@ -50,8 +50,11 @@ export class NodeEditorDomRenderer {
         }
     }
 
-    #renderFrame() {
-        if (this.container) {
+    #renderFrame(force = false) {
+        if (this.container && (!window.focusLock || force)) {
+            if (window.focusLock && force) {
+                window.focusLock = false;
+            }
             this.container.innerHTML = '';
             const editorSize = {
                 width: this.container.clientWidth,
@@ -153,7 +156,7 @@ export class NodeEditorDomRenderer {
                         this.#renderButton("Add global section", () => {
                             this.#renderInputPopup("Global name", "", name => {
                                 this.editor.addGlobalSection(name);
-                                this.#renderFrame();
+                                this.#renderFrame(true);
                             });
                         }, "add"),
                         this.#renderButton(collapseTextState, () => {
@@ -280,6 +283,12 @@ export class NodeEditorDomRenderer {
         return FJS.create("button")
             .classes("node-editor-button")
             .onclick(onclick)
+            .onfocus(() => {
+                window.focusLock = true;
+            })
+            .onblur(() => {
+                window.focusLock = false;
+            })
             .children(
                 icon ? this.#renderMaterialIcon(icon) : null,
                 FJS.create("span")
@@ -292,6 +301,18 @@ export class NodeEditorDomRenderer {
     #renderSelect(options, onchange) {
         return FJS.create("select")
             .classes("node-editor-select")
+            .onmouseover(() => {
+                window.focusLock = true;
+            })
+            .onmouseout(() => {
+                window.focusLock = false;
+            })
+            .onfocus(() => {
+                window.focusLock = true;
+            })
+            .onblur(() => {
+                window.focusLock = false;
+            })
             .children(...options.map(option => {
                 return FJS.create("option")
                     .value(option.value)
@@ -312,7 +333,7 @@ export class NodeEditorDomRenderer {
                         this.#renderDropdownPopup("Field value", Object.values(ValueTypes), type => {
                             const field = new InputField(name, type, null);
                             global.addField(field);
-                            this.#renderFrame();
+                            this.#renderFrame(true);
                             document.getElementById(field.id).focus();
                         });
                     });
@@ -571,6 +592,12 @@ export class NodeEditorDomRenderer {
             .id(field.id)
             .name(field.id)
             .title(actualValue)
+            .onfocus(() => {
+                window.focusLock = true;
+            })
+            .onblur(() => {
+                window.focusLock = false;
+            })
             .ondblclick(e => {
                 field.startConnecting(e);
             })

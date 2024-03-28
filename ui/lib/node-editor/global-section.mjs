@@ -1,3 +1,5 @@
+import {ValueTypes} from "./value-types.mjs";
+
 export class GlobalSection {
     /**
      *
@@ -12,6 +14,18 @@ export class GlobalSection {
     set(key, value) {
         const field = this.fields.find(field => field.name === key);
         field.value = value;
+        if (field.type === ValueTypes.function && field.value.includes("Date.now()")) {
+            if (this.updateInterval) {
+                clearInterval(this.updateInterval);
+            }
+            this.updateInterval = setInterval(() => {
+                field.propagateValue();
+                window.nodeEditor.rerender();
+            }, 100);
+        } else if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+        }
+        field.propagateValue();
     }
 
     get(key) {

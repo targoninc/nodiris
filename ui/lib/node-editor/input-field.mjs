@@ -96,7 +96,7 @@ export class InputField {
                 deleteQueue.push(connection);
                 continue;
             }
-            connectedField.outValue = connectedField.calculateOutValue(this.outValue);
+            connectedField.outValue = connectedField.calculateOutValue(this.getOutValue());
             if (connectedField.type !== ValueTypes.function) {
                 connectedField.value = connectedField.outValue;
             }
@@ -105,6 +105,14 @@ export class InputField {
         for (const connection of deleteQueue) {
             this.connections.splice(this.connections.indexOf(connection), 1);
         }
+    }
+
+    getOutValue() {
+        if (this.outValue) {
+            return this.outValue;
+        }
+
+        return this.calculateOutValue(this.value);
     }
 
     calculateOutValue(value) {
