@@ -370,6 +370,15 @@ export class NodeEditor {
         this.settings.showFieldConnections = !this.settings.showFieldConnections;
     }
 
+    toggleTheme() {
+        this.setTheme(this.settings.theme === "dark" ? "light" : "dark");
+    }
+
+    toggleGrid() {
+        this.settings.showGrid = !this.settings.showGrid;
+        this.rerender();
+    }
+
     static fromJSON(parse) {
         const types = parse.nodeTypes.map(type => new NodeType(type.name, type.fields.map(field => {
             const fieldType = Object.values(ValueTypes).find(type => type.name === field.type.name);

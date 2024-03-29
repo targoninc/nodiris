@@ -12,7 +12,6 @@ export class NodeEditorDomRenderer {
         });
         this.container = null;
         this.panelCollapsedState = new FjsObservable(false);
-        this.gridState = new FjsObservable(false);
     }
 
     start(container) {
@@ -33,20 +32,7 @@ export class NodeEditorDomRenderer {
                     Keymap[key].action();
                     this.#renderFrame();
                 }
-
-                if (e.ctrlKey) {
-                    this.showGrid();
-                }
             });
-        }
-    }
-
-    showGrid() {
-        this.gridState.value = !this.gridState.value;
-        if (this.gridState.value) {
-            this.#updateCssVariable('--node-editor-grid', '1px solid var(--node-border)');
-        } else {
-            this.#updateCssVariable('--node-editor-grid', 'none');
         }
     }
 
@@ -54,6 +40,11 @@ export class NodeEditorDomRenderer {
         if (this.container && (!window.focusLock || force)) {
             if (window.focusLock && force) {
                 window.focusLock = false;
+            }
+            if (this.editor.settings.showGrid) {
+                this.#updateCssVariable('--node-editor-grid', '1px solid var(--node-border)');
+            } else {
+                this.#updateCssVariable('--node-editor-grid', 'none');
             }
             this.container.innerHTML = '';
             const editorSize = {
