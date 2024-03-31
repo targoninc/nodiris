@@ -270,6 +270,7 @@ button:hover {
 .flex, .flex-v {
     display: flex;
     gap: var(--flex-gap);
+    flex-wrap: wrap;
 }
 
 .flex-v {

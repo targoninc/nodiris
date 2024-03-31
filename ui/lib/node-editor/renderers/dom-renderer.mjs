@@ -100,7 +100,7 @@ export class NodeEditorDomRenderer {
                     .classes("node-editor-grid")
                     .id("node-editor-grid")
                     .children(
-                        this.#generateGrid()
+                        this.#generateGrid(this.editor.position.value.x, this.editor.position.value.y)
                     ).build(),
                 FJS.create("div")
                     .classes("node-editor-nodes")
@@ -113,12 +113,29 @@ export class NodeEditorDomRenderer {
             ).build();
     }
 
-    #generateGrid() {
+    #generateGrid(xOff, yOff) {
         const grid = [];
-        for (let i = 0; i < 100; i++) {
-            grid.push(FJS.create("div").classes("grid-line", "vertical").styles("left", `${i * 100}px`).build());
-            grid.push(FJS.create("div").classes("grid-line", "horizontal").styles("top", `${i * 100}px`).build());
-        }
+        const zoom = this.editor.zoomState.value;
+        const resolution = 100 * zoom;
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const xMod = xOff % resolution;
+        const yMod = yOff % resolution;
+        let x, y, i = 0;
+        do {
+            x = i * resolution + xMod + width / 2;
+            y = i * resolution + yMod + height / 2;
+            grid.push(FJS.create("div").classes("grid-line", "vertical").styles("left", `${x}px`).build());
+            grid.push(FJS.create("div").classes("grid-line", "horizontal").styles("top", `${y}px`).build());
+            i++;
+        } while (x < width || y < height);
+        do {
+            x = i * resolution + xMod + width / 2;
+            y = i * resolution + yMod + height / 2;
+            grid.push(FJS.create("div").classes("grid-line", "vertical").styles("left", `${x}px`).build());
+            grid.push(FJS.create("div").classes("grid-line", "horizontal").styles("top", `${y}px`).build());
+            i--;
+        } while (x > 0 || y > 0);
         return grid;
     }
 
@@ -153,6 +170,13 @@ export class NodeEditorDomRenderer {
                         this.#renderButton(collapseTextState, () => {
                             collapsedState.value = !collapsedState.value;
                         }, collapseIconState),
+                        this.#renderButton("Download JSON", () => {
+                            const a = document.createElement('a');
+                            a.href = URL.createObjectURL(new Blob([JSON.stringify(this.editor)], {type: 'application/json'}));
+                            const timestamp = new Date().toISOString().replace(/:/g, '-');
+                            a.download = 'node-editor-' + timestamp + '.json';
+                            a.click();
+                        }, "download"),
                     ).build(),
                 ...this.editor.globals.map(global => this.#renderEditorGlobalSection(global))
             ).build();
