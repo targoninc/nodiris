@@ -105,6 +105,10 @@
     margin: auto;
 }
 
+.node-connection-arrow.small {
+    --arrow-size: 5px;
+}
+
 .node {
     position: absolute;
     width: max-content;
@@ -120,9 +124,17 @@
     transform: translate(-50%, -50%);
 }
 
+.node-small {
+    padding: var(--editor-padding-small);
+}
+
 .node-title, .global-section-title {
     font-size: calc(var(--editor-font-size) * 1.5);
     user-select: none;
+}
+
+.node-small .node-title {
+    font-size: var(--editor-font-size);
 }
 
 .node-editor-globals {

@@ -426,10 +426,12 @@ export class NodeEditorDomRenderer {
     }
 
     #renderNodeConnections(node) {
+        const small = this.editor.zoomState.value < 1;
+
         return FJS.create("div")
             .classes("node-connections")
             .id(`${node.id}-connections`)
-            .children(...node.connections.map(connection => this.#renderConnection(connection, "node")))
+            .children(...node.connections.map(connection => this.#renderConnection(connection, "node", small)))
             .build();
     }
 
@@ -455,7 +457,27 @@ export class NodeEditorDomRenderer {
             nodeY.value = node.getPosY(editorSize.height, this.editor.zoomState.value, position.y) + "px";
         };
 
-        if (this.editor.zoomState.value < .5) {
+        if (this.editor.zoomState.value < 0.4) {
+            return FJS.create("div")
+                .classes("node", "node-small")
+                .id(node.id)
+                .styles("left", nodeX, "top", nodeY)
+                .onmousedown(e => {
+                    node.moveWithMouse(node.id, this.editor.settings.gridSnapping, this.editor.zoomState, e);
+                })
+                .ondblclick(e => {
+                    node.startConnecting(e);
+                })
+                .oncontextmenu((e) => {
+                    node.openContextMenu(e, menuClassState, menuPositionState, this.editor.zoomState.value, editorSize, this.#renderFrame.bind(this));
+                })
+                .children(
+                    this.#renderNodeHeader(node, true),
+                    this.#renderNodeMenu(node, menuPositionState, menuClassState)
+                ).build();
+        }
+
+        if (this.editor.zoomState.value < 1) {
             return FJS.create("div")
                 .classes("node")
                 .id(node.id)
@@ -539,7 +561,7 @@ export class NodeEditorDomRenderer {
             ).build();
     }
 
-    #renderNodeHeader(node) {
+    #renderNodeHeader(node, small = false) {
         return FJS.create("div")
             .classes("node-header")
             .children(
@@ -547,7 +569,7 @@ export class NodeEditorDomRenderer {
                     .classes("node-title")
                     .text(node.name)
                     .build(),
-                this.#renderSelect(window.nodeEditor.nodeTypes.map(t => {
+                small ? null : this.#renderSelect(window.nodeEditor.nodeTypes.map(t => {
                     return {
                         value: t.name,
                         text: t.name,
@@ -561,10 +583,10 @@ export class NodeEditorDomRenderer {
             ).build();
     }
 
-    #renderConnection(connection, type) {
+    #renderConnection(connection, type, small = false) {
         const {fromX, fromY, length, angle} = connection.getConnectionTransform(type, this.editor.position.value);
         const arrow = FJS.create("div")
-            .classes("node-connection-arrow")
+            .classes("node-connection-arrow", small ? "small" : "_")
             .build();
         const newNode = FJS.create("div")
             .classes("node-connection", "connection-" + type)
