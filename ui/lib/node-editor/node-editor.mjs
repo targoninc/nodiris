@@ -440,6 +440,14 @@ export class NodeEditor {
         this.addNode(new EditorNode(this.nodeTypes[0], position));
     }
 
+    removeSelectedNodes() {
+        for (const id of this.selectedNodes) {
+            this.removeNodeById(id);
+        }
+        this.selectedNodes = [];
+        this.rerender();
+    }
+
     propagateValues() {
         for (const field of this.getAllFields()) {
             field.propagateValue();

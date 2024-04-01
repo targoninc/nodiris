@@ -1,4 +1,4 @@
-import {create, FJS, FjsObservable, signal} from "https://fjs.targoninc.com/f.js";
+import {create, FjsObservable, ifjs, signal} from "https://fjs.targoninc.com/f.js";
 import {Icon} from "../icons/icon.mjs";
 import {InputField} from "../input-field.mjs";
 import {ValueTypes} from "../value-types.mjs";
@@ -11,7 +11,7 @@ export class NodeEditorDomRenderer {
             this.#renderFrame();
         });
         this.container = null;
-        this.panelCollapsedState = new FjsObservable(false);
+        this.panelCollapsedState = signal(false);
         this.lastNodeClick = null;
     }
 
@@ -71,10 +71,10 @@ export class NodeEditorDomRenderer {
     }
     
     #renderEditor(editorSize, collapsedState) {
-        const menuClassState = new FjsObservable('hidden');
-        const menuPositionState = new FjsObservable({x: 0, y: 0});
-        const editorX = new FjsObservable(this.editor.position.value.x + "px");
-        const editorY = new FjsObservable(this.editor.position.value.y + "px");
+        const menuClassState = signal('hidden');
+        const menuPositionState = signal({x: 0, y: 0});
+        const editorX = signal(this.editor.position.value.x + "px");
+        const editorY = signal(this.editor.position.value.y + "px");
         this.editor.position.onUpdate = position => {
             editorX.value = position.x + "px";
             editorY.value = position.y + "px";
@@ -87,7 +87,7 @@ export class NodeEditorDomRenderer {
             .onmousedown(e => {
                 if (e.button === 1) {
                     this.editor.moveOffset(e);
-                } else {
+                } else if (e.button === 0) {
                     this.editor.startSelecting(e);
                 }
             })
@@ -151,9 +151,9 @@ export class NodeEditorDomRenderer {
     }
 
     #renderEditorGlobals(collapsedState) {
-        const collapseTextState = new FjsObservable(collapsedState.value ? "Pin Panel" : "Unpin panel");
-        const collapseIconState = new FjsObservable(collapsedState.value ? "transition_slide" : "transition_fade");
-        const collapsedClassState = new FjsObservable(collapsedState.value ? 'collapsed' : 'expanded');
+        const collapseTextState = signal(collapsedState.value ? "Pin Panel" : "Unpin panel");
+        const collapseIconState = signal(collapsedState.value ? "transition_slide" : "transition_fade");
+        const collapsedClassState = signal(collapsedState.value ? 'collapsed' : 'expanded');
         collapsedState.onUpdate = collapsed => {
             if (collapsed) {
                 collapseTextState.value = "Pin panel";
@@ -376,12 +376,13 @@ export class NodeEditorDomRenderer {
     }
 
     #renderEditorMenu(positionState, classState, editorSize) {
-        const xState = new FjsObservable(positionState.value.x + "px");
-        const yState = new FjsObservable(positionState.value.y + "px");
+        const xState = signal(positionState.value.x + "px");
+        const yState = signal(positionState.value.y + "px");
         positionState.onUpdate = position => {
             xState.value = position.x + "px";
             yState.value = position.y + "px";
         };
+        const hasSelectedNodes = this.editor.selectedNodes.length > 0;
 
         return create("div")
             .classes("menu", classState)
@@ -390,12 +391,15 @@ export class NodeEditorDomRenderer {
                 this.#renderMenuItem("Add node", () => {
                     this.editor.addNodeFromMenu(positionState, editorSize);
                 }, "addNode"),
+                ifjs(hasSelectedNodes, this.#renderMenuItem("Remove selected", () => {
+                    this.editor.removeSelectedNodes();
+                }, "delete"))
             ).build();
     }
 
     #renderConnections() {
-        const xState = new FjsObservable(this.editor.position.value.x + "px");
-        const yState = new FjsObservable(this.editor.position.value.y + "px");
+        const xState = signal(this.editor.position.value.x + "px");
+        const yState = signal(this.editor.position.value.y + "px");
         this.editor.position.onUpdate = position => {
             xState.value = position.x + "px";
             yState.value = position.y + "px";
@@ -558,8 +562,8 @@ export class NodeEditorDomRenderer {
     }
 
     #renderNodeMenu(node, positionState, classState) {
-        const xState = new FjsObservable(positionState.value.x + "px");
-        const yState = new FjsObservable(positionState.value.y + "px");
+        const xState = signal(positionState.value.x + "px");
+        const yState = signal(positionState.value.y + "px");
         positionState.onUpdate = position => {
             xState.value = position.x + "px";
             yState.value = position.y + "px";
@@ -647,7 +651,7 @@ export class NodeEditorDomRenderer {
      * @param errorState {FjsObservable}
      * @returns {*}
      */
-    #renderInput(field, value, onChange, errorState = new FjsObservable("")) {
+    #renderInput(field, value, onChange, errorState = signal("")) {
         let type = field.type;
         if (type === ValueTypes.boolean) {
             type = 'checkbox';
@@ -699,8 +703,8 @@ export class NodeEditorDomRenderer {
     }
 
     #renderInputField(field, value, onChange) {
-        const errorState = new FjsObservable('');
-        const hiddenClassState = new FjsObservable(field.shownState.value ? '_' : 'hidden');
+        const errorState = signal('');
+        const hiddenClassState = signal(field.shownState.value ? '_' : 'hidden');
         field.shownState.onUpdate = shown => {
             if (shown) {
                 hiddenClassState.value = 'hidden';
