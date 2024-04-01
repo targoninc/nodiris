@@ -586,9 +586,11 @@ export class NodeEditorDomRenderer {
             .children(
                 this.#renderMenuItem("Remove node", () => {
                     window.nodeEditor.removeNodeById(node.id);
+                    this.#renderFrame(true);
                 }, "delete"),
                 this.#renderMenuItem("Duplicate node", () => {
                     window.nodeEditor.duplicateNode(node);
+                    this.#renderFrame(true);
                 }, "copy"),
                 this.#renderMenuItem("Connect", e => {
                     node.startConnecting(e);
