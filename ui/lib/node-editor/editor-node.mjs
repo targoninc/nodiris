@@ -19,7 +19,7 @@ export class EditorNode {
         for (const field of this.type.fields) {
             const existingField = fields.find(f => f.name === field.name);
             if (existingField) {
-                newFields.push(new InputField(field.name, field.type, field.default, field.required, newFields.shown, newFields.connections.map(connection => new EditorConnection(connection.from, connection.to)), existingField.value, existingField.id));
+                newFields.push(new InputField(field.name, field.type, field.default, field.required, newFields.shown, existingField.connections.map(connection => new EditorConnection(connection.from, connection.to)), existingField.value, existingField.id));
             } else {
                 newFields.push(new InputField(field.name, field.type, field.default, field.required, field.shown));
             }
@@ -84,8 +84,16 @@ export class EditorNode {
         }
     }
 
+    isAllowedToConnectTo(type) {
+        if (!this.type.getOption("canConnectTo")) {
+            return true;
+        }
+
+        return this.type.getOption("canConnectTo").includes(type);
+    }
+
     canConnectTo(id) {
-        return !this.connections.find(connection => connection.to === id);
+        return !this.connections.find(connection => connection.to === id) && this.isAllowedToConnectTo(window.nodeEditor.getNodeById(id).type.name);
     }
 
     addConnection(connection) {

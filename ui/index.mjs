@@ -4,35 +4,35 @@ import {ValueTypes} from "./lib/node-editor/value-types.mjs";
 import {EditorNode} from "./lib/node-editor/editor-node.mjs";
 import {InputField} from "./lib/node-editor/input-field.mjs";
 import {NodeType} from "./lib/node-editor/node-type.mjs";
-import {GlobalSection} from "./lib/node-editor/global-section.mjs";
 
 
 const types = [
-    new NodeType("testType", [
-        new InputField("testFunction", ValueTypes.function, "x", true),
-        new InputField("testNumber", ValueTypes.number, 3, true),
-        new InputField("testString", ValueTypes.string, "test", true)
-    ]),
-    new NodeType("testType2", [
-        new InputField("testNumberSomething", ValueTypes.number, 2, true),
-        new InputField("testNumber", ValueTypes.number, 4, true),
-    ]),
+    new NodeType("Choice", [
+        new InputField("Message", ValueTypes.string, "", true),
+        new InputField("Message function", ValueTypes.function, "", true),
+    ], {
+        canConnectTo: ["Narrator"],
+    }),
+    new NodeType("Narrator", [
+        new InputField("Message", ValueTypes.string, "", true),
+        new InputField("Message function", ValueTypes.function, "", true),
+    ], {
+        canConnectTo: ["Choice"],
+    }),
 ];
 
 const nodes = [
-    new EditorNode(types[0], { x: 0, y: 0 }),
-    new EditorNode(types[0], { x: 200, y: 200 }),
+    new EditorNode(types[0], { x: 0, y: 0 }, [
+        new InputField("Message", ValueTypes.string, "What if I say this?"),
+    ]),
+    new EditorNode(types[1], { x: 200, y: 200 }, [
+        new InputField("Message", ValueTypes.string, "Then you get this answer!"),
+    ]),
 ];
 
-const globals = [
-    new GlobalSection("test", [
-        new InputField("testNumberSome", ValueTypes.number, 4, true),
-    ])
-];
+const globals = [];
 
 nodes[0].connect(nodes[1].id);
-globals[0].fields[0].connect(nodes[0].fields[0].id);
-nodes[0].fields[0].connect(nodes[1].fields[0].id);
 const existingEditor = sessionStorage.getItem("editor");
 let editor;
 if (!existingEditor) {

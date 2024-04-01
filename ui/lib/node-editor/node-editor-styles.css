@@ -305,5 +305,5 @@ input.disabled {
 }
 
 .align-right {
-    flex-direction: revert;
+    justify-content: flex-end;
 }

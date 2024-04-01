@@ -104,6 +104,15 @@ export class NodeEditor {
         }
     }
 
+    duplicateNode(node) {
+        const clone = new EditorNode(node.type, {x: node.position.x + 10, y: node.position.y + 10});
+        for (const field of node.fields) {
+            clone.set(field.name, field.value);
+        }
+        this.nodes.push(clone);
+        this.rerender();
+    }
+
     /**
      *
      * @param type {string}
@@ -122,20 +131,26 @@ export class NodeEditor {
         return this.getAllFields().find(field => field.id === id);
     }
 
+    getNodeById(id) {
+        return this.nodes.find(node => node.id === id);
+    }
+
     startNodeConnection(fromId) {
         const sourceNode = this.nodes.find(node => node.id === fromId);
+        sourceNode.highlightAsConnectionSource();
         for (const node of this.nodes) {
-            if (node.id !== fromId) {
-                if (sourceNode.canConnectTo(node.id)) {
-                    if (this.nodeConnectionWouldRecurse(sourceNode, node)) {
-                        continue;
-                    }
+            if (node.id === fromId) {
+                continue;
+            }
+
+            if (sourceNode.isAllowedToConnectTo(node.type.name) && sourceNode.canConnectTo(node.id)) {
+                if (!this.nodeConnectionWouldRecurse(sourceNode, node)) {
                     node.highlightAsConnectionTarget();
-                } else {
-                    node.highlightAsConnectionRemoval();
                 }
-            } else {
-                node.highlightAsConnectionSource();
+            }
+
+            if (!sourceNode.canConnectTo(node.id) && sourceNode.isAllowedToConnectTo(node.type.name)) {
+                node.highlightAsConnectionRemoval();
             }
         }
     }
@@ -383,7 +398,7 @@ export class NodeEditor {
         const types = parse.nodeTypes.map(type => new NodeType(type.name, type.fields.map(field => {
             const fieldType = Object.values(ValueTypes).find(type => type.name === field.type.name);
             return new InputField(field.name, fieldType, field.default, field.required, field.shown, field.connections, field.value, field.id);
-        })));
+        }), type.options));
         const nodes = parse.nodes.map(node => {
             const type = types.find(type => type.name === node.type.name);
             return new EditorNode(type, node.position, node.fields, node.id, node.connections);
