@@ -185,10 +185,17 @@ button {
     align-items: center;
     display: flex;
     gap: var(--flex-gap);
+    max-width: max-content;
 }
 
 button:hover {
     background: var(--node-border);
+}
+
+.node-editor-global-section, .global-section-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--flex-gap);
 }
 
 .node-field {
@@ -196,6 +203,7 @@ button:hover {
     gap: var(--flex-gap);
     user-select: none;
     align-items: center;
+    flex-grow: 1;
 }
 
 .node-field-error {

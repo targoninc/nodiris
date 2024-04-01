@@ -33,7 +33,7 @@ const nodes = [
 
 const globals = [
     new GlobalSection("test", [
-        new InputField("time", ValueTypes.function, "parseInt(Date.now() / 1000)"),
+        new InputField("time", ValueTypes.string, "c"),
     ]),
 ];
 

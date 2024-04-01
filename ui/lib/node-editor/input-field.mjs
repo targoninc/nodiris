@@ -126,10 +126,6 @@ export class InputField {
     }
 
     getOutValue() {
-        if (this.outValue) {
-            return this.outValue;
-        }
-
         return this.calculateOutValue(this.value);
     }
 

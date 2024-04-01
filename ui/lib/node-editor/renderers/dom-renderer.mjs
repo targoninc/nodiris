@@ -302,10 +302,20 @@ export class NodeEditorDomRenderer {
                 create("div")
                     .classes("global-section-fields")
                     .children(
-                        ...global.fields.map(field => this.#renderInputField(field, global.get(field.name), newValue => {
-                            global.set(field.name, newValue);
-                            this.#renderFrame();
-                        }))
+                        ...global.fields.map(field => {
+                            return create("div")
+                                .classes("global-section-field")
+                                .children(
+                                    this.#renderInputField(field, global.get(field.name), newValue => {
+                                        global.set(field.name, newValue);
+                                        this.#renderFrame(true);
+                                    }),
+                                    this.#renderButton("Remove field", () => {
+                                        global.removeFieldByName(field.name);
+                                        this.#renderFrame(true);
+                                    }, "delete"),
+                                ).build();
+                        })
                     ).build()
             ).build();
     }
