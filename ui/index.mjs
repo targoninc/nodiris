@@ -4,6 +4,7 @@ import {ValueTypes} from "./lib/node-editor/value-types.mjs";
 import {EditorNode} from "./lib/node-editor/editor-node.mjs";
 import {InputField} from "./lib/node-editor/input-field.mjs";
 import {NodeType} from "./lib/node-editor/node-type.mjs";
+import {GlobalSection} from "./lib/node-editor/global-section.mjs";
 
 
 const types = [
@@ -30,7 +31,11 @@ const nodes = [
     ]),
 ];
 
-const globals = [];
+const globals = [
+    new GlobalSection("test", [
+        new InputField("time", ValueTypes.function, "parseInt(Date.now() / 1000)"),
+    ]),
+];
 
 nodes[0].connect(nodes[1].id);
 const existingEditor = sessionStorage.getItem("editor");

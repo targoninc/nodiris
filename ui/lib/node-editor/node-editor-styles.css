@@ -193,7 +193,6 @@ button:hover {
 
 .node-field {
     display: flex;
-    justify-content: space-between;
     gap: var(--flex-gap);
     user-select: none;
     align-items: center;
@@ -201,6 +200,18 @@ button:hover {
 
 .node-field-error {
     color: var(--error-color);
+}
+
+.node-field-label {
+    flex-grow: 1;
+}
+
+.node-field-connector {
+    border-radius: 500px;
+    background: var(--node-background);
+    border: 1px solid var(--node-border);
+    width: 1em;
+    height: 1em;
 }
 
 .menu {

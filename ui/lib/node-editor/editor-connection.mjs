@@ -30,6 +30,7 @@ export class EditorConnection {
             toX += toNode.offsetLeft - toNode.offsetWidth / 2;
             toY += (to.offsetHeight / 2) + toNode.offsetTop - toNode.offsetHeight / 2;
         }
+        fromX += 13;
         const diffX = toX - fromX;
         const diffY = toY - fromY;
         const length = Math.sqrt(diffX * diffX + diffY * diffY);

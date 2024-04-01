@@ -44,28 +44,44 @@ export class InputField {
         this.shownState.value = true;
     }
 
+    getDomNode() {
+        const domNode = document.getElementById(this.id);
+        if (!domNode) {
+            console.error(`Node with id ${this.id} not found`);
+            return {
+                classList: {
+                    add: () => {
+                    },
+                    remove: () => {
+                    }
+                }
+            };
+        }
+        return domNode;
+    }
+
     highlightAsConnectionTarget() {
-        document.getElementById(this.id).classList.add("incoming");
+        this.getDomNode().classList.add("incoming");
     }
 
     highlightAsConnectionSource() {
-        document.getElementById(this.id).classList.add("outgoing");
+        this.getDomNode().classList.add("outgoing");
     }
 
     highlightAsConnectionRemoval() {
-        document.getElementById(this.id).classList.add("removal");
+        this.getDomNode().classList.add("removal");
     }
 
     unhighlightAsConnectionTarget() {
-        document.getElementById(this.id).classList.remove("incoming");
+        this.getDomNode().classList.remove("incoming");
     }
 
     unhighlightAsConnectionSource() {
-        document.getElementById(this.id).classList.remove("outgoing");
+        this.getDomNode().classList.remove("outgoing");
     }
 
     unhighlightAsConnectionRemoval() {
-        document.getElementById(this.id).classList.remove("removal");
+        this.getDomNode().classList.remove("removal");
     }
 
     startConnecting(e) {
@@ -78,6 +94,8 @@ export class InputField {
             }
 
             window.nodeEditor.finishFieldConnection(this.id, e.target.id);
+            e.target.blur();
+            window.nodeEditor.rerender();
         }, {once: true});
     }
 

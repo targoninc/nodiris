@@ -104,7 +104,8 @@ export class NodeEditorDomRenderer {
                 this.editor.resetView();
             })
             .oncontextmenu((e) => {
-                this.editor.openContextMenu(e, menuClassState, menuPositionState, this.#renderFrame.bind(this));
+                window.focusLock = true;
+                this.editor.openContextMenu(e, menuClassState, menuPositionState, this.#renderFrame.bind(this, true));
             })
             .children(
                 create("div")
@@ -728,8 +729,13 @@ export class NodeEditorDomRenderer {
                         create("span")
                             .classes("node-field-error")
                             .text(errorState)
-                            .build()
-                    ).build()
+                            .build(),
+                    ).build(),
+                create("div")
+                    .classes("node-field-connector")
+                    .onclick(e => {
+                        field.startConnecting(e);
+                    }).build()
             ).build();
     }
 }
