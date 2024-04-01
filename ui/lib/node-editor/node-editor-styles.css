@@ -222,6 +222,12 @@ button:hover {
     height: 1em;
 }
 
+.global-section-field {
+    border: 1px solid var(--node-border);
+    border-radius: var(--editor-border-radius);
+    padding: var(--editor-padding);
+}
+
 .menu {
     position: absolute;
     background-color: var(--node-background);
