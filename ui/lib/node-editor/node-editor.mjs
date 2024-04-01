@@ -334,10 +334,44 @@ export class NodeEditor {
         if (e.target.id !== "node-editor" && e.target.id !== "node-editor-nodes") {
             return;
         }
+        document.querySelector(".node-editor").classList.add("selecting");
         const mouseStart = {
             x: e.clientX,
             y: e.clientY
         };
+        const selectBox = document.createElement("div");
+        selectBox.classList.add("select-box");
+        document.body.appendChild(selectBox);
+        const move = e => {
+            const width = Math.abs(e.clientX - mouseStart.x);
+            const height = Math.abs(e.clientY - mouseStart.y);
+            selectBox.style.width = width + "px";
+            selectBox.style.height = height + "px";
+            selectBox.style.left = Math.min(mouseStart.x, e.clientX) + "px";
+            selectBox.style.top = Math.min(mouseStart.y, e.clientY) + "px";
+        };
+        const stop = () => {
+            const selectedNodes = this.nodes.filter(node => {
+                const nodeElement = document.getElementById(node.id);
+                const nodeRect = nodeElement.getBoundingClientRect();
+                const selectRect = selectBox.getBoundingClientRect();
+                return nodeRect.left < selectRect.right &&
+                    nodeRect.right > selectRect.left &&
+                    nodeRect.top < selectRect.bottom &&
+                    nodeRect.bottom > selectRect.top;
+            });
+            this.unselectAllExcept();
+            for (const node of selectedNodes) {
+                this.addSelectedNode(node.id);
+            }
+            selectBox.remove();
+            document.removeEventListener("mousemove", move);
+            document.removeEventListener("mouseup", stop);
+            document.querySelector(".node-editor").classList.remove("selecting");
+            this.rerender();
+        };
+        document.addEventListener("mousemove", move);
+        document.addEventListener("mouseup", stop);
     }
 
     addSelectedNode(id) {

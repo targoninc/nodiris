@@ -16,6 +16,8 @@
     --error-color: #e43232;
     --outgoing-color: #3279e4;
     --incoming-color: #e4a332;
+    --select-box-border: rgb(0, 184, 255);
+    --select-box-background: rgba(0, 184, 255, 0.1);
 }
 
 .hidden {
@@ -43,6 +45,10 @@
     overflow: hidden;
     cursor: grab;
     z-index: 1;
+}
+
+.node-editor.selecting {
+    cursor: default;
 }
 
 .node-editor-nodes {
@@ -310,4 +316,10 @@ input.disabled {
 
 .align-right {
     justify-content: flex-end;
+}
+
+.select-box {
+    position: absolute;
+    background: var(--select-box-background);
+    border: 1px solid var(--select-box-border);
 }
