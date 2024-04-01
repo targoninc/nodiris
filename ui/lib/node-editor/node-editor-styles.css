@@ -303,3 +303,7 @@ input.disabled {
     flex-direction: column;
     gap: var(--flex-gap);
 }
+
+.align-right {
+    flex-direction: revert;
+}

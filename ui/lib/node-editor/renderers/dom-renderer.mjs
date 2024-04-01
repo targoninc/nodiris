@@ -1,4 +1,4 @@
-import {FJS, FjsObservable} from "https://fjs.targoninc.com/f.js";
+import {create, FJS, FjsObservable} from "https://fjs.targoninc.com/f.js";
 import {Icon} from "../icons/icon.mjs";
 import {InputField} from "../input-field.mjs";
 import {ValueTypes} from "../value-types.mjs";
@@ -158,6 +158,13 @@ export class NodeEditorDomRenderer {
         return FJS.create("div")
             .classes("node-editor-globals", "flex-v", collapsedClassState)
             .children(
+                create("div")
+                    .classes("flex", "align-right")
+                    .children(
+                        this.#renderButton(collapseTextState, () => {
+                            collapsedState.value = !collapsedState.value;
+                        }, collapseIconState),
+                    ).build(),
                 FJS.create("div")
                     .classes("flex")
                     .children(
@@ -167,9 +174,6 @@ export class NodeEditorDomRenderer {
                                 this.#renderFrame(true);
                             });
                         }, "add"),
-                        this.#renderButton(collapseTextState, () => {
-                            collapsedState.value = !collapsedState.value;
-                        }, collapseIconState),
                         this.#renderButton("Download JSON", () => {
                             const a = document.createElement('a');
                             a.href = URL.createObjectURL(new Blob([JSON.stringify(this.editor)], {type: 'application/json'}));
