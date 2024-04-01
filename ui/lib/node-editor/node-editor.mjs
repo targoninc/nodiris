@@ -38,6 +38,7 @@ export class NodeEditor {
             console.log("rerender method is not set. Make sure your renderer is set up correctly.");
         };
         this.setTheme(this.settings.theme);
+        this.selectedNodes = [];
     }
 
     addGlobalSection(name) {
@@ -327,6 +328,36 @@ export class NodeEditor {
             menuClassState.value = 'hidden';
             rerenderCallback();
         }, {once: true});
+    }
+
+    startSelecting(e) {
+        if (e.target.id !== "node-editor" && e.target.id !== "node-editor-nodes") {
+            return;
+        }
+        const mouseStart = {
+            x: e.clientX,
+            y: e.clientY
+        };
+    }
+
+    addSelectedNode(id) {
+        this.selectedNodes.push(id);
+    }
+
+    removeSelectedNode(id) {
+        this.selectedNodes = this.selectedNodes.filter(nid => nid !== id);
+    }
+
+    unselectAllExcept(id = null) {
+        if (!id) {
+            this.selectedNodes = [];
+            return;
+        }
+        this.selectedNodes = [id];
+    }
+
+    nodeIsSelected(id) {
+        return this.selectedNodes.includes(id);
     }
 
     moveOffset(e) {

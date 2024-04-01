@@ -84,7 +84,17 @@ export class NodeEditorDomRenderer {
             .classes("node-editor")
             .id("node-editor")
             .onmousedown(e => {
-                this.editor.moveOffset(e);
+                if (e.button === 1) {
+                    this.editor.moveOffset(e);
+                } else {
+                    this.editor.startSelecting(e);
+                }
+            })
+            .onclick((e) => {
+                if (e.target.id === "node-editor" || e.target.id === "node-editor-nodes") {
+                    this.editor.unselectAllExcept();
+                    this.editor.rerender();
+                }
             })
             .onwheel(e => {
                 this.editor.zoom(e);
@@ -460,14 +470,18 @@ export class NodeEditorDomRenderer {
             nodeX.value = node.getPosX(editorSize.width, this.editor.zoomState.value, position.x) + "px";
             nodeY.value = node.getPosY(editorSize.height, this.editor.zoomState.value, position.y) + "px";
         };
+        const selected = this.editor.nodeIsSelected(node.id) ? "selected" : "_";
 
         if (this.editor.zoomState.value < 0.4) {
             return FJS.create("div")
-                .classes("node", "node-small")
+                .classes("node", "node-small", selected)
                 .id(node.id)
                 .styles("left", nodeX, "top", nodeY)
                 .onmousedown(e => {
                     node.moveWithMouse(node.id, this.editor.settings.gridSnapping, this.editor.zoomState, e);
+                })
+                .onclick((e) => {
+                    node.toggleSelection(e);
                 })
                 .ondblclick(e => {
                     node.startConnecting(e);
@@ -483,11 +497,14 @@ export class NodeEditorDomRenderer {
 
         if (this.editor.zoomState.value < 1) {
             return FJS.create("div")
-                .classes("node")
+                .classes("node", selected)
                 .id(node.id)
                 .styles("left", nodeX, "top", nodeY)
                 .onmousedown(e => {
                     node.moveWithMouse(node.id, this.editor.settings.gridSnapping, this.editor.zoomState, e);
+                })
+                .onclick((e) => {
+                    node.toggleSelection(e);
                 })
                 .ondblclick(e => {
                     node.startConnecting(e);
@@ -502,11 +519,14 @@ export class NodeEditorDomRenderer {
         }
 
         return FJS.create("div")
-            .classes("node")
+            .classes("node", selected)
             .id(node.id)
             .styles("left", nodeX, "top", nodeY)
             .onmousedown(e => {
                 node.moveWithMouse(node.id, this.editor.settings.gridSnapping, this.editor.zoomState, e);
+            })
+            .onclick((e) => {
+                node.toggleSelection(e);
             })
             .ondblclick(e => {
                 node.startConnecting(e);

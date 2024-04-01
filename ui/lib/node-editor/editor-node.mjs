@@ -29,6 +29,7 @@ export class EditorNode {
         this.position = position;
         this.positionState = new FjsObservable(position);
         this.connections = connections;
+        this.selected = false;
     }
 
     setType(type) {
@@ -196,6 +197,23 @@ export class EditorNode {
 
     unhighlightAsConnectionRemoval() {
         document.getElementById(this.id).classList.remove("removal");
+    }
+
+    toggleSelection(e) {
+        if (window.nodeEditor.nodeIsSelected(this.id)) {
+            if (e.ctrlKey) {
+                window.nodeEditor.removeSelectedNode(this.id);
+            } else {
+                window.nodeEditor.unselectAllExcept(this.id);
+            }
+        } else {
+            if (e.ctrlKey) {
+                window.nodeEditor.addSelectedNode(this.id);
+            } else {
+                window.nodeEditor.unselectAllExcept(this.id);
+            }
+        }
+        window.nodeEditor.rerender();
     }
 
     startConnecting(e) {

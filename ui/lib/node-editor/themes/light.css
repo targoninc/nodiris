@@ -17,3 +17,7 @@
     --outgoing-color: #3279e4;
     --incoming-color: #f29a00;
 }
+
+img {
+    filter: none !important;
+}

@@ -252,6 +252,10 @@ button:hover {
     border: 1px solid var(--error-color);
 }
 
+.selected {
+    border: 1px solid var(--editor-text);
+}
+
 .icon {
     filter: invert(1);
     width: 1.2em;
