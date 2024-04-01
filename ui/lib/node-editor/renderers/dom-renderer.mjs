@@ -1,4 +1,4 @@
-import {create, FJS, FjsObservable} from "https://fjs.targoninc.com/f.js";
+import {create, FJS, FjsObservable, signal} from "https://fjs.targoninc.com/f.js";
 import {Icon} from "../icons/icon.mjs";
 import {InputField} from "../input-field.mjs";
 import {ValueTypes} from "../value-types.mjs";
@@ -12,6 +12,7 @@ export class NodeEditorDomRenderer {
         });
         this.container = null;
         this.panelCollapsedState = new FjsObservable(false);
+        this.lastNodeClick = null;
     }
 
     start(container) {
@@ -80,7 +81,7 @@ export class NodeEditorDomRenderer {
         }
         this.editor.propagateValues();
 
-        return FJS.create("div")
+        return create("div")
             .classes("node-editor")
             .id("node-editor")
             .onmousedown(e => {
@@ -106,13 +107,13 @@ export class NodeEditorDomRenderer {
                 this.editor.openContextMenu(e, menuClassState, menuPositionState, this.#renderFrame.bind(this));
             })
             .children(
-                FJS.create("div")
+                create("div")
                     .classes("node-editor-grid")
                     .id("node-editor-grid")
                     .children(
                         this.#generateGrid(this.editor.position.value.x, this.editor.position.value.y)
                     ).build(),
-                FJS.create("div")
+                create("div")
                     .classes("node-editor-nodes")
                     .id("node-editor-nodes")
                     .styles("margin-left", editorX, "margin-top", editorY)
@@ -135,15 +136,15 @@ export class NodeEditorDomRenderer {
         do {
             x = i * resolution + xMod + width / 2;
             y = i * resolution + yMod + height / 2;
-            grid.push(FJS.create("div").classes("grid-line", "vertical").styles("left", `${x}px`).build());
-            grid.push(FJS.create("div").classes("grid-line", "horizontal").styles("top", `${y}px`).build());
+            grid.push(create("div").classes("grid-line", "vertical").styles("left", `${x}px`).build());
+            grid.push(create("div").classes("grid-line", "horizontal").styles("top", `${y}px`).build());
             i++;
         } while (x < width || y < height);
         do {
             x = i * resolution + xMod + width / 2;
             y = i * resolution + yMod + height / 2;
-            grid.push(FJS.create("div").classes("grid-line", "vertical").styles("left", `${x}px`).build());
-            grid.push(FJS.create("div").classes("grid-line", "horizontal").styles("top", `${y}px`).build());
+            grid.push(create("div").classes("grid-line", "vertical").styles("left", `${x}px`).build());
+            grid.push(create("div").classes("grid-line", "horizontal").styles("top", `${y}px`).build());
             i--;
         } while (x > 0 || y > 0);
         return grid;
@@ -165,7 +166,7 @@ export class NodeEditorDomRenderer {
             }
         }
 
-        return FJS.create("div")
+        return create("div")
             .classes("node-editor-globals", "flex-v", collapsedClassState)
             .children(
                 create("div")
@@ -175,7 +176,7 @@ export class NodeEditorDomRenderer {
                             collapsedState.value = !collapsedState.value;
                         }, collapseIconState),
                     ).build(),
-                FJS.create("div")
+                create("div")
                     .classes("flex")
                     .children(
                         this.#renderButton("Add global section", () => {
@@ -197,14 +198,14 @@ export class NodeEditorDomRenderer {
     }
 
     #renderMaterialIcon(icon) {
-        return FJS.create("span")
+        return create("span")
             .classes("material-symbols-outlined")
             .text(icon)
             .build();
     }
 
     #renderPopupContainer(children) {
-        return FJS.create("div")
+        return create("div")
             .classes("popup-container")
             .children(...children)
             .build();
@@ -215,14 +216,14 @@ export class NodeEditorDomRenderer {
     }
 
     #renderInputPopup(title, value, onSave) {
-        const popup = FJS.create("div")
+        const popup = create("div")
             .classes("input-popup", "flex-v")
             .children(
-                FJS.create("div")
+                create("div")
                     .classes("input-popup-title")
                     .text(title)
                     .build(),
-                FJS.create("input")
+                create("input")
                     .classes("input-popup-input")
                     .value(value)
                     .id("focus-input")
@@ -244,17 +245,17 @@ export class NodeEditorDomRenderer {
     }
 
     #renderDropdownPopup(title, options, onSave) {
-        const popup = FJS.create("div")
+        const popup = create("div")
             .classes("input-popup", "flex-v")
             .children(
-                FJS.create("div")
+                create("div")
                     .classes("input-popup-title")
                     .text(title)
                     .build(),
-                FJS.create("select")
+                create("select")
                     .classes("input-popup-input")
                     .children(...options.map(option => {
-                        return FJS.create("option")
+                        return create("option")
                             .value(option)
                             .text(option)
                             .build();
@@ -270,7 +271,7 @@ export class NodeEditorDomRenderer {
     }
 
     #renderPopupButtons(onSave = () => {}, onCancel = () => {}) {
-        return FJS.create("div")
+        return create("div")
             .classes("flex", "spaced")
             .children(
                 this.#renderButton("Cancel", () => {
@@ -289,15 +290,15 @@ export class NodeEditorDomRenderer {
      * @param global {GlobalSection}
      */
     #renderEditorGlobalSection(global) {
-        return FJS.create("div")
+        return create("div")
             .classes("node-editor-global-section")
             .children(
-                FJS.create("span")
+                create("span")
                     .classes("global-section-title")
                     .text(global.name)
                     .build(),
                 this.#renderGlobalsSettings(global),
-                FJS.create("div")
+                create("div")
                     .classes("global-section-fields")
                     .children(
                         ...global.fields.map(field => this.#renderInputField(field, global.get(field.name), newValue => {
@@ -309,7 +310,7 @@ export class NodeEditorDomRenderer {
     }
 
     #renderButton(text, onclick, icon = null) {
-        return FJS.create("button")
+        return create("button")
             .classes("node-editor-button")
             .onclick(onclick)
             .onfocus(() => {
@@ -320,7 +321,7 @@ export class NodeEditorDomRenderer {
             })
             .children(
                 icon ? this.#renderMaterialIcon(icon) : null,
-                FJS.create("span")
+                create("span")
                     .classes("node-editor-button-text")
                     .text(text)
                     .build()
@@ -328,7 +329,7 @@ export class NodeEditorDomRenderer {
     }
 
     #renderSelect(options, onchange) {
-        return FJS.create("select")
+        return create("select")
             .classes("node-editor-select")
             .onmouseover(() => {
                 window.focusLock = true;
@@ -343,7 +344,7 @@ export class NodeEditorDomRenderer {
                 window.focusLock = false;
             })
             .children(...options.map(option => {
-                return FJS.create("option")
+                return create("option")
                     .value(option.value)
                     .text(option.text)
                     .selected(option.selected)
@@ -354,7 +355,7 @@ export class NodeEditorDomRenderer {
     }
 
     #renderGlobalsSettings(global) {
-        return FJS.create("div")
+        return create("div")
             .classes("global-section-settings", "flex")
             .children(
                 this.#renderButton("Add field", () => {
@@ -382,7 +383,7 @@ export class NodeEditorDomRenderer {
             yState.value = position.y + "px";
         };
 
-        return FJS.create("div")
+        return create("div")
             .classes("menu", classState)
             .styles("left", xState, "top", yState)
             .children(
@@ -400,15 +401,15 @@ export class NodeEditorDomRenderer {
             yState.value = position.y + "px";
         };
 
-        let fieldConnections = FJS.create("div").build();
+        let fieldConnections = create("div").build();
         if (this.editor.settings.showFieldConnections) {
-            fieldConnections = FJS.create("div")
+            fieldConnections = create("div")
                 .classes("node-global-connections")
                 .id("node-global-connections")
                 .styles("left", xState, "top", yState)
                 .children(...this.editor.globals.map(global => this.#renderGlobalConnections(global)))
                 .children(...this.editor.nodes.map(node => {
-                    return FJS.create("div")
+                    return create("div")
                         .classes("node-node-connections")
                         .children(
                             ...node.fields.map(field => {
@@ -416,7 +417,7 @@ export class NodeEditorDomRenderer {
                                     return null;
                                 }
 
-                                return FJS.create("div")
+                                return create("div")
                                     .classes("node-connection")
                                     .id(`${node.id}-${field.id}-connection`)
                                     .children(...field.connections.map(connection => this.#renderConnection(connection, "global-node")))
@@ -427,9 +428,9 @@ export class NodeEditorDomRenderer {
                 .build()
         }
 
-        return FJS.create("div")
+        return create("div")
             .children(
-                FJS.create("div")
+                create("div")
                     .classes("node-editor-connections")
                     .id("node-editor-connections")
                     .styles("left", xState, "top", yState)
@@ -442,7 +443,7 @@ export class NodeEditorDomRenderer {
     #renderNodeConnections(node) {
         const small = this.editor.zoomState.value < 1;
 
-        return FJS.create("div")
+        return create("div")
             .classes("node-connections")
             .id(`${node.id}-connections`)
             .children(...node.connections.map(connection => this.#renderConnection(connection, "node", small)))
@@ -450,10 +451,10 @@ export class NodeEditorDomRenderer {
     }
 
     #renderGlobalConnections(global) {
-        return FJS.create("div")
+        return create("div")
             .classes("global-connections")
             .children(...global.fields.map(field => {
-                return FJS.create("div")
+                return create("div")
                     .classes("global-connection")
                     .id(`${global.name}-${field.id}-connection`)
                     .children(...field.connections.map(connection => this.#renderConnection(connection, "global")))
@@ -461,19 +462,34 @@ export class NodeEditorDomRenderer {
             })).build();
     }
 
+    #handleNodeClick(e, node) {
+        if (this.lastNodeClick && this.lastNodeClick.node === node && Date.now() - this.lastNodeClick.time < 300) {
+            this.editor.unselectAllExcept();
+            window.nodeEditor.rerender();
+            node.startConnecting(e);
+        } else {
+            node.toggleSelection(e);
+            window.nodeEditor.rerender();
+        }
+        this.lastNodeClick = {
+            node: node,
+            time: Date.now()
+        };
+    }
+
     #renderNode(node, editorSize) {
-        const menuClassState = new FjsObservable('hidden');
-        const menuPositionState = new FjsObservable({x: 0, y: 0});
-        const nodeX = new FjsObservable(`${node.getPosX(editorSize.width, this.editor.zoomState.value, node.position.x)}px`);
-        const nodeY = new FjsObservable(`${node.getPosY(editorSize.height, this.editor.zoomState.value, node.position.y)}px`);
-        node.positionState.onUpdate = position => {
+        const menuClassState = signal('hidden');
+        const menuPositionState = signal({x: 0, y: 0});
+        const nodeX = signal(`${node.getPosX(editorSize.width, this.editor.zoomState.value, node.position.x)}px`);
+        const nodeY = signal(`${node.getPosY(editorSize.height, this.editor.zoomState.value, node.position.y)}px`);
+        node.positionState.subscribe((position) => {
             nodeX.value = node.getPosX(editorSize.width, this.editor.zoomState.value, position.x) + "px";
             nodeY.value = node.getPosY(editorSize.height, this.editor.zoomState.value, position.y) + "px";
-        };
+        });
         const selected = this.editor.nodeIsSelected(node.id) ? "selected" : "_";
 
         if (this.editor.zoomState.value < 0.4) {
-            return FJS.create("div")
+            return create("div")
                 .classes("node", "node-small", selected)
                 .id(node.id)
                 .styles("left", nodeX, "top", nodeY)
@@ -481,10 +497,7 @@ export class NodeEditorDomRenderer {
                     node.moveWithMouse(node.id, this.editor.settings.gridSnapping, this.editor.zoomState, e);
                 })
                 .onclick((e) => {
-                    node.toggleSelection(e);
-                })
-                .ondblclick(e => {
-                    node.startConnecting(e);
+                    this.#handleNodeClick(e, node);
                 })
                 .oncontextmenu((e) => {
                     node.openContextMenu(e, menuClassState, menuPositionState, this.editor.zoomState.value, editorSize, this.#renderFrame.bind(this));
@@ -496,7 +509,7 @@ export class NodeEditorDomRenderer {
         }
 
         if (this.editor.zoomState.value < 1) {
-            return FJS.create("div")
+            return create("div")
                 .classes("node", selected)
                 .id(node.id)
                 .styles("left", nodeX, "top", nodeY)
@@ -504,10 +517,7 @@ export class NodeEditorDomRenderer {
                     node.moveWithMouse(node.id, this.editor.settings.gridSnapping, this.editor.zoomState, e);
                 })
                 .onclick((e) => {
-                    node.toggleSelection(e);
-                })
-                .ondblclick(e => {
-                    node.startConnecting(e);
+                    this.#handleNodeClick(e, node);
                 })
                 .oncontextmenu((e) => {
                     node.openContextMenu(e, menuClassState, menuPositionState, this.editor.zoomState.value, editorSize, this.#renderFrame.bind(this));
@@ -518,7 +528,7 @@ export class NodeEditorDomRenderer {
                 ).build();
         }
 
-        return FJS.create("div")
+        return create("div")
             .classes("node", selected)
             .id(node.id)
             .styles("left", nodeX, "top", nodeY)
@@ -526,17 +536,14 @@ export class NodeEditorDomRenderer {
                 node.moveWithMouse(node.id, this.editor.settings.gridSnapping, this.editor.zoomState, e);
             })
             .onclick((e) => {
-                node.toggleSelection(e);
-            })
-            .ondblclick(e => {
-                node.startConnecting(e);
+                this.#handleNodeClick(e, node);
             })
             .oncontextmenu((e) => {
                 node.openContextMenu(e, menuClassState, menuPositionState, this.editor.zoomState.value, editorSize, this.#renderFrame.bind(this));
             })
             .children(
                 this.#renderNodeHeader(node),
-                FJS.create("div")
+                create("div")
                     .classes("node-fields", "flex-v")
                     .children(
                         ...node.fields.map(field => {
@@ -558,7 +565,7 @@ export class NodeEditorDomRenderer {
             yState.value = position.y + "px";
         };
 
-        return FJS.create("div")
+        return create("div")
             .classes("menu", classState)
             .styles("left", xState, "top", yState)
             .children(
@@ -576,12 +583,12 @@ export class NodeEditorDomRenderer {
     }
 
     #renderMenuItem(text, onclick, icon = "add") {
-        return FJS.create("div")
+        return create("div")
             .classes("menu-item")
             .onclick(onclick)
             .children(
                 Icon.asImage(icon).build(),
-                FJS.create("span")
+                create("span")
                     .classes("node-editor-menu-item-text")
                     .text(text)
                     .build()
@@ -589,10 +596,10 @@ export class NodeEditorDomRenderer {
     }
 
     #renderNodeHeader(node, small = false) {
-        return FJS.create("div")
+        return create("div")
             .classes("node-header")
             .children(
-                FJS.create("span")
+                create("span")
                     .classes("node-title")
                     .text(node.name)
                     .build(),
@@ -612,10 +619,10 @@ export class NodeEditorDomRenderer {
 
     #renderConnection(connection, type, small = false) {
         const {fromX, fromY, length, angle} = connection.getConnectionTransform(type, this.editor.position.value);
-        const arrow = FJS.create("div")
+        const arrow = create("div")
             .classes("node-connection-arrow", small ? "small" : "_")
             .build();
-        const newNode = FJS.create("div")
+        const newNode = create("div")
             .classes("node-connection", "connection-" + type)
             .id(connection.id)
             .attributes("data-from", connection.from, "data-to", connection.to)
@@ -649,7 +656,7 @@ export class NodeEditorDomRenderer {
         }
 
         const actualValue = this.editor.getValue(field.id);
-        const base = FJS.create("input")
+        const base = create("input")
             .classes("node-field-input")
             .type(type.toLowerCase())
             .value(value)
@@ -702,19 +709,19 @@ export class NodeEditorDomRenderer {
             }
         };
 
-        return FJS.create("div")
+        return create("div")
             .classes("node-field", hiddenClassState)
             .children(
-                FJS.create("label")
+                create("label")
                     .classes("node-field-label")
                     .for(field.id)
                     .text(field.name)
                     .build(),
-                FJS.create("div")
+                create("div")
                     .classes("node-field-value")
                     .children(
                         this.#renderInput(field, value, onChange, errorState),
-                        FJS.create("span")
+                        create("span")
                             .classes("node-field-error")
                             .text(errorState)
                             .build()
