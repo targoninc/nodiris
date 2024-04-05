@@ -9,6 +9,6 @@ const app = express();
 
 app.use(express.static(path.join(__dirname, '/ui')));
 
-app.listen(3000, () => {
-    console.log('Server listening at http://localhost:3000/');
+app.listen(3001, () => {
+    console.log('Server listening at http://localhost:3001/');
 });
