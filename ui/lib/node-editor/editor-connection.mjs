@@ -1,10 +1,10 @@
 import {IdGenerator} from "./id-generator.mjs";
 
 export class EditorConnection {
-    constructor(from, to) {
+    constructor(from, to, id = null) {
         this.from = from;
         this.to = to;
-        this.id = IdGenerator.generateId();
+        this.id = id ?? IdGenerator.generateId();
     }
 
     getConnectionTransform(type, editorPosition) {

@@ -353,6 +353,9 @@ export class NodeEditor {
         const stop = () => {
             const selectedNodes = this.nodes.filter(node => {
                 const nodeElement = document.getElementById(node.id);
+                if (!nodeElement) {
+                    return false;
+                }
                 const nodeRect = nodeElement.getBoundingClientRect();
                 const selectRect = selectBox.getBoundingClientRect();
                 return nodeRect.left < selectRect.right &&
@@ -484,6 +487,25 @@ export class NodeEditor {
         });
         const settings = parse.settings;
         return new NodeEditor(types, nodes, globals, settings);
+    }
+
+    loadFromJSON(parse) {
+        this.nodeTypes = parse.nodeTypes.map(type => new NodeType(type.name, type.fields.map(field => {
+            const fieldType = Object.values(ValueTypes).find(type => type.name === field.type.name);
+            return new InputField(field.name, fieldType, field.default, field.required, field.shown, field.connections, field.value, field.id);
+        }), type.options));
+        this.nodes = parse.nodes.map(node => {
+            const type = this.nodeTypes.find(type => type.name === node.type.name);
+            return new EditorNode(type, node.position, node.fields, node.id, node.connections);
+        });
+        this.globals = parse.globals.map(global => {
+            return new GlobalSection(global.name, global.fields.map(field => {
+                const fieldType = Object.values(ValueTypes).find(type => type.name === field.type.name);
+                return new InputField(field.name, fieldType, field.default, field.required, field.shown, field.connections, field.value, field.id);
+            }));
+        });
+        this.settings = parse.settings;
+        this.selectedNodes = [];
     }
 }
 

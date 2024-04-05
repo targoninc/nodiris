@@ -3,6 +3,7 @@ import {Icon} from "../icons/icon.mjs";
 import {InputField} from "../input-field.mjs";
 import {ValueTypes} from "../value-types.mjs";
 import {Keymap} from "../keymap.mjs";
+import {NodeEditor} from "../node-editor.mjs";
 
 export class NodeEditorDomRenderer {
     constructor(editor) {
@@ -166,6 +167,8 @@ export class NodeEditorDomRenderer {
                 collapsedClassState.value = 'expanded';
             }
         }
+        const uploadTextState = signal("Upload JSON");
+        const uploadIconState = signal("upload");
 
         return create("div")
             .classes("node-editor-globals", "flex-v", collapsedClassState)
@@ -193,6 +196,32 @@ export class NodeEditorDomRenderer {
                             a.download = 'node-editor-' + timestamp + '.json';
                             a.click();
                         }, "download"),
+                        this.#renderButton(uploadTextState, () => {
+                            uploadIconState.value = "input";
+                            uploadTextState.value = "Selecting JSON file...";
+                            const input = document.createElement('input');
+                            input.type = 'file';
+                            input.accept = '.json';
+                            input.onchange = () => {
+                                if (!input.files[0]) {
+                                    uploadIconState.value = "upload";
+                                    uploadTextState.value = "Upload JSON";
+                                    return;
+                                }
+                                uploadIconState.value = "cached";
+                                uploadTextState.value = "Loading...";
+                                const reader = new FileReader();
+                                reader.onload = () => {
+                                    const json = JSON.parse(reader.result);
+                                    this.editor.loadFromJSON(json);
+                                    this.#renderFrame(true);
+                                    uploadIconState.value = "upload";
+                                    uploadTextState.value = "Upload JSON";
+                                };
+                                reader.readAsText(input.files[0]);
+                            };
+                            input.click();
+                        }, uploadIconState),
                     ).build(),
                 ...this.editor.globals.map(global => this.#renderEditorGlobalSection(global))
             ).build();

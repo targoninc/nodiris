@@ -17,7 +17,7 @@ export class InputField {
             this.shown = shown;
         };
         this.default = defaultValue;
-        this.connections = connections ?? [];
+        this.connections = connections.map(c => new EditorConnection(c.from, c.to, c.id)) ?? [];
         this.id = id ?? IdGenerator.generateId();
         this.value = value ?? defaultValue;
         this.outValue = value ?? defaultValue;

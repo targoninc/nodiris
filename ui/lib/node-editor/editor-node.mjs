@@ -28,7 +28,7 @@ export class EditorNode {
         this.id = id ?? IdGenerator.generateId();
         this.position = position;
         this.positionState = new FjsObservable(position);
-        this.connections = connections;
+        this.connections = connections.map(connection => new EditorConnection(connection.from, connection.to, connection.id));
     }
 
     setType(type) {
