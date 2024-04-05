@@ -4,6 +4,7 @@ import {InputField} from "../input-field.mjs";
 import {ValueTypes} from "../value-types.mjs";
 import {Keymap} from "../keymap.mjs";
 import {NodeEditor} from "../node-editor.mjs";
+import {Auth} from "../auth/auth.mjs";
 
 export class NodeEditorDomRenderer {
     constructor(editor) {
@@ -152,6 +153,64 @@ export class NodeEditorDomRenderer {
         return grid;
     }
 
+    #renderUserComponent() {
+        const authenticated = signal(false);
+        const user = signal(null);
+        const buttonText = signal("Login");
+        const buttonIcon = signal("login");
+        const error = signal(null);
+
+        return create("div")
+            .classes("flex-v")
+            .children(
+                create("div")
+                    .classes("flex")
+                    .children(
+                        ifjs(authenticated, this.#renderLoggedInComponent(user)),
+                        this.#renderButton(buttonText, () => {
+                            if (authenticated.value) {
+                                window.location.href = "/logout";
+                            } else {
+                                this.#renderInputPopup("Username", "", username => {
+                                    this.#renderInputPopup("Password", "", password => {
+                                        Auth.authorize(username, password).then(res => {
+                                            if (res.error) {
+                                                error.value = res.error;
+                                            } else {
+                                                authenticated.value = true;
+                                                user.value = res.user;
+                                                buttonText.value = "Logout";
+                                                buttonIcon.value = "logout";
+                                            }
+                                        });
+                                    });
+                                });
+                            }
+                        })
+                    ).build(),
+                ifjs(error, create("div")
+                    .classes("error")
+                    .text(error)
+                    .build())
+            ).build();
+    }
+
+    #renderLoggedInComponent() {
+        return create("div")
+            .classes("flex-v")
+            .children(
+                create("span")
+                    .text("Logged in")
+                    .build(),
+                create("button")
+                    .text("Logout")
+                    .onclick(() => {
+                        window.location.href = "/logout";
+                    })
+                    .build()
+            ).build();
+    }
+
     #renderEditorGlobals(collapsedState) {
         const collapseTextState = signal(collapsedState.value ? "Pin Panel" : "Unpin panel");
         const collapseIconState = signal(collapsedState.value ? "transition_slide" : "transition_fade");
@@ -174,12 +233,16 @@ export class NodeEditorDomRenderer {
             .classes("node-editor-globals", "flex-v", collapsedClassState)
             .children(
                 create("div")
-                    .classes("flex", "align-right")
+                    .classes("flex", "spaced")
                     .children(
+                        this.#renderUserComponent(),
                         this.#renderButton(collapseTextState, () => {
                             collapsedState.value = !collapsedState.value;
                         }, collapseIconState),
                     ).build(),
+                create("h1")
+                    .text("General")
+                    .build(),
                 create("div")
                     .classes("flex")
                     .children(
@@ -198,7 +261,7 @@ export class NodeEditorDomRenderer {
                         }, "download"),
                         this.#renderButton(uploadTextState, () => {
                             uploadIconState.value = "input";
-                            uploadTextState.value = "Selecting JSON file...";
+                            uploadTextState.value = "Selecting...";
                             const input = document.createElement('input');
                             input.type = 'file';
                             input.accept = '.json';
@@ -323,8 +386,7 @@ export class NodeEditorDomRenderer {
         return create("div")
             .classes("node-editor-global-section")
             .children(
-                create("span")
-                    .classes("global-section-title")
+                create("h1")
                     .text(global.name)
                     .build(),
                 this.#renderGlobalsSettings(global),

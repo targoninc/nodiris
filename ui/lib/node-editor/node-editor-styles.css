@@ -134,7 +134,7 @@
     padding: var(--editor-padding-small);
 }
 
-.node-title, .global-section-title {
+.node-title {
     font-size: calc(var(--editor-font-size) * 1.5);
     user-select: none;
 }
@@ -347,4 +347,9 @@ input.disabled {
     position: absolute;
     background: var(--select-box-background);
     border: 1px solid var(--select-box-border);
+}
+
+h1 {
+    font-size: calc(var(--editor-font-size) * 2);
+    margin: 0;
 }
