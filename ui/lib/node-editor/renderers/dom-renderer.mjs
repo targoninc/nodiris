@@ -169,7 +169,10 @@ export class NodeEditorDomRenderer {
                         ifjs(authenticated, this.#renderLoggedInComponent(user)),
                         this.#renderButton(buttonText, () => {
                             if (authenticated.value) {
-                                window.location.href = "/logout";
+                                authenticated.value = false;
+                                user.value = null;
+                                buttonText.value = "Login";
+                                buttonIcon.value = "login";
                             } else {
                                 this.#renderInputPopup("Username", "", username => {
                                     this.#renderInputPopup("Password", "", password => {
@@ -183,10 +186,10 @@ export class NodeEditorDomRenderer {
                                                 buttonIcon.value = "logout";
                                             }
                                         });
-                                    });
+                                    }, "password");
                                 });
                             }
-                        })
+                        }, buttonIcon),
                     ).build(),
                 ifjs(error, create("div")
                     .classes("error")
@@ -195,18 +198,18 @@ export class NodeEditorDomRenderer {
             ).build();
     }
 
-    #renderLoggedInComponent() {
+    #renderLoggedInComponent(user) {
+        const username = signal(user.value ? user.value.username : "");
+        user.subscribe(u => {
+            username.value = u.username;
+        });
+
         return create("div")
-            .classes("flex-v")
+            .classes("flex", "node-editor-user")
             .children(
+                this.#renderMaterialIcon("person"),
                 create("span")
-                    .text("Logged in")
-                    .build(),
-                create("button")
-                    .text("Logout")
-                    .onclick(() => {
-                        window.location.href = "/logout";
-                    })
+                    .text(username)
                     .build()
             ).build();
     }
@@ -308,7 +311,7 @@ export class NodeEditorDomRenderer {
         document.querySelector(".popup-container")?.remove();
     }
 
-    #renderInputPopup(title, value, onSave) {
+    #renderInputPopup(title, value, onSave, type = "text") {
         const popup = create("div")
             .classes("input-popup", "flex-v")
             .children(
@@ -319,6 +322,7 @@ export class NodeEditorDomRenderer {
                 create("input")
                     .classes("input-popup-input")
                     .value(value)
+                    .type(type)
                     .id("focus-input")
                     .build(),
                 this.#renderPopupButtons(() => {
