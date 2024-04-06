@@ -5,6 +5,7 @@ import {EditorNode} from "./lib/node-editor/editor-node.mjs";
 import {InputField} from "./lib/node-editor/input-field.mjs";
 import {NodeType} from "./lib/node-editor/node-type.mjs";
 import {GlobalSection} from "./lib/node-editor/global-section.mjs";
+import {DefaultEditorGraphinfo} from "./lib/node-editor/default-editor-graphinfo.mjs";
 
 
 const types = [
@@ -41,7 +42,10 @@ nodes[0].connect(nodes[1].id);
 const existingEditor = sessionStorage.getItem("editor");
 let editor;
 if (!existingEditor) {
-    editor = NodeEditor.create(types, nodes, globals);
+    editor = NodeEditor.create({
+        ...DefaultEditorGraphinfo,
+        name: "Graph"
+    }, types, nodes, globals);
 } else {
     editor = NodeEditor.fromJSON(JSON.parse(existingEditor));
 }

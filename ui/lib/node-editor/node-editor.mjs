@@ -5,28 +5,32 @@ import {InputField} from "./input-field.mjs";
 import {NodeType} from "./node-type.mjs";
 import {DefaultEditorSettings} from "./default-editor-settings.mjs";
 import {GlobalSection} from "./global-section.mjs";
+import {DefaultEditorGraphinfo} from "./default-editor-graphinfo.mjs";
 
 export class NodeEditor {
     /**
      *
+     * @param graphInfo {Object}
      * @param types {NodeType[]}
      * @param nodes {EditorNode[]}
      * @param globals {GlobalSection[]}
      * @param settings {DefaultEditorSettings | Object}
      * @returns {NodeEditor}
      */
-    static create(types = [], nodes = [], globals = [], settings = DefaultEditorSettings) {
-        return new NodeEditor(types, nodes, globals, settings);
+    static create(graphInfo = {}, types = [], nodes = [], globals = [], settings = DefaultEditorSettings) {
+        return new NodeEditor(graphInfo, types, nodes, globals, settings);
     }
 
     /**
      *
+     * @param graphInfo {Object}
      * @param types {NodeType[]}
      * @param nodes {EditorNode[]}
      * @param globals {GlobalSection[]}
      * @param settings {DefaultEditorSettings | Object}
      */
-    constructor(types = [], nodes = [], globals = [], settings = DefaultEditorSettings) {
+    constructor(graphInfo = {}, types = [], nodes = [], globals = [], settings = DefaultEditorSettings) {
+        this.graphInfo = graphInfo;
         this.nodeTypes = types;
         this.nodes = nodes;
         this.globals = globals;
@@ -470,6 +474,10 @@ export class NodeEditor {
         this.rerender();
     }
 
+    setGraphName(name) {
+        this.graphInfo.name = name;
+    }
+
     static fromJSON(parse) {
         const types = parse.nodeTypes.map(type => new NodeType(type.name, type.fields.map(field => {
             const fieldType = Object.values(ValueTypes).find(type => type.name === field.type.name);
@@ -485,8 +493,9 @@ export class NodeEditor {
                 return new InputField(field.name, fieldType, field.default, field.required, field.shown, field.connections, field.value, field.id);
             }));
         });
-        const settings = parse.settings;
-        return new NodeEditor(types, nodes, globals, settings);
+        const settings = parse.settings ?? DefaultEditorSettings;
+        const graphInfo = parse.graphInfo ?? DefaultEditorGraphinfo;
+        return new NodeEditor(graphInfo, types, nodes, globals, settings);
     }
 
     loadFromJSON(parse) {
@@ -505,6 +514,7 @@ export class NodeEditor {
             }));
         });
         this.settings = parse.settings;
+        this.graphInfo = parse.graphInfo;
         this.selectedNodes = [];
     }
 }

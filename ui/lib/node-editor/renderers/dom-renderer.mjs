@@ -229,8 +229,6 @@ export class NodeEditorDomRenderer {
                 collapsedClassState.value = 'expanded';
             }
         }
-        const uploadTextState = signal("Upload JSON");
-        const uploadIconState = signal("upload");
 
         return create("div")
             .classes("node-editor-globals", "flex-v", collapsedClassState)
@@ -243,9 +241,26 @@ export class NodeEditorDomRenderer {
                             collapsedState.value = !collapsedState.value;
                         }, collapseIconState),
                     ).build(),
-                create("h1")
-                    .text("General")
-                    .build(),
+                this.#renderGeneralSection(),
+                ...this.editor.globals.map(global => this.#renderEditorGlobalSection(global))
+            ).build();
+    }
+
+    #renderGeneralSection() {
+        const uploadTextState = signal("Upload JSON");
+        const uploadIconState = signal("upload");
+
+        return create("div")
+            .classes("flex-v")
+            .children(
+                create("div")
+                    .classes("flex", "spaced", "center-children")
+                    .children(
+                        create("h1")
+                            .text(this.editor.graphInfo.name)
+                            .build(),
+                        this.#renderInfoPill(this.editor.graphInfo.public ? "Public" : "Private", this.editor.graphInfo.public ? "lock_open" : "lock")
+                    ).build(),
                 create("div")
                     .classes("flex")
                     .children(
@@ -288,8 +303,18 @@ export class NodeEditorDomRenderer {
                             };
                             input.click();
                         }, uploadIconState),
-                    ).build(),
-                ...this.editor.globals.map(global => this.#renderEditorGlobalSection(global))
+                    ).build()
+            ).build();
+    }
+
+    #renderInfoPill(text, icon = null) {
+        return create("div")
+            .classes("info-pill")
+            .children(
+                icon ? this.#renderMaterialIcon(icon) : null,
+                create("span")
+                    .text(text)
+                    .build()
             ).build();
     }
 
