@@ -258,6 +258,12 @@ export class NodeEditorDomRenderer {
                     .children(
                         create("h1")
                             .text(this.editor.graphInfo.name)
+                            .onclick(() => {
+                                this.#renderInputPopup("Graph name", this.editor.graphInfo.name, name => {
+                                    this.editor.setGraphName(name);
+                                    this.#renderFrame(true);
+                                });
+                            })
                             .build(),
                         this.#renderInfoPill(this.editor.graphInfo.public ? "Public" : "Private", this.editor.graphInfo.public ? "lock_open" : "lock")
                     ).build(),

@@ -60,4 +60,8 @@ export class DB {
     async getUserSubscriptions(id, subscriptionIds) {
         return await this.query("SELECT * FROM finance.subscriptions WHERE user_id = ? AND subscription_id IN (?)", [id, subscriptionIds.join(",")]);
     }
+
+    async saveAvatar(userId, avatar) {
+        await this.query("UPDATE nodeeditor.avatars SET avatar = ? WHERE user_id = ?", [avatar, userId]);
+    }
 }
