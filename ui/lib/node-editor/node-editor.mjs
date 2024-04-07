@@ -1,4 +1,4 @@
-import {FjsObservable, signal} from "https://fjs.targoninc.com/f.js";
+import {signal} from "https://fjs.targoninc.com/f.js";
 import {ValueTypes} from "./value-types.mjs";
 import {EditorNode} from "./editor-node.mjs";
 import {InputField} from "./input-field.mjs";
@@ -35,8 +35,8 @@ export class NodeEditor {
         this.nodeTypes = types;
         this.nodes = nodes;
         this.globals = globals;
-        this.position = new FjsObservable({x: 0, y: 0});
-        this.zoomState = new FjsObservable(1);
+        this.position = signal({x: 0, y: 0});
+        this.zoomState = signal(1);
         window.nodeEditor = this;
         this.settings = settings;
         this.rerender = () => {

@@ -1,4 +1,4 @@
-import {create, FjsObservable, ifjs, signal} from "https://fjs.targoninc.com/f.js";
+import {create, ifjs, signal} from "https://fjs.targoninc.com/f.js";
 import {Icon} from "../icons/icon.mjs";
 import {InputField} from "../input-field.mjs";
 import {ValueTypes} from "../value-types.mjs";
@@ -6,6 +6,8 @@ import {Keymap} from "../keymap.mjs";
 import {Auth} from "../auth/auth.mjs";
 import {Api} from "../auth/api.mjs";
 import {ImageProcessor} from "../image-processor.mjs";
+import {UiActions} from "./ui-actions.mjs";
+import {GenericTemplates} from "../templates/generic.templates.mjs";
 
 export class NodeEditorDomRenderer {
     constructor(editor) {
@@ -173,27 +175,28 @@ export class NodeEditorDomRenderer {
                     .classes("flex")
                     .children(
                         ifjs(authenticated, this.#renderLoggedInComponent(user)),
-                        this.#renderButton(buttonText, () => {
+                        GenericTemplates.button(buttonText, () => {
                             if (authenticated.value) {
                                 authenticated.value = false;
                                 user.value = null;
                                 buttonText.value = "Login";
                                 buttonIcon.value = "login";
                             } else {
-                                this.#renderInputPopup("Username", "", username => {
-                                    this.#renderInputPopup("Password", "", password => {
-                                        Auth.authorize(username, password).then(res => {
-                                            if (res.error) {
-                                                error.value = res.error;
-                                            } else {
-                                                authenticated.value = true;
-                                                user.value = res.user;
-                                                this.editor.user = res.user;
-                                                buttonText.value = "Logout";
-                                                buttonIcon.value = "logout";
-                                            }
-                                        });
-                                    }, "password");
+                                this.#renderLoginPopup(async () => {
+                                    const popupInputs = document.querySelectorAll(".input-popup-input");
+                                    const username = popupInputs[0].value;
+                                    const password = popupInputs[1].value;
+                                    Auth.authorize(username, password).then(res => {
+                                        if (res.error) {
+                                            error.value = res.error;
+                                        } else {
+                                            authenticated.value = true;
+                                            user.value = res.user;
+                                            this.editor.user = res.user;
+                                            buttonText.value = "Logout";
+                                            buttonIcon.value = "logout";
+                                        }
+                                    });
                                 });
                             }
                         }, buttonIcon),
@@ -209,6 +212,9 @@ export class NodeEditorDomRenderer {
         const username = signal(user.value ? user.value.username : "");
         const avatar = signal(user.value ? user.value.avatar : null);
         user.subscribe(u => {
+            if (!u) {
+                return;
+            }
             username.value = u.username;
             avatar.value = u.avatar;
         });
@@ -236,7 +242,7 @@ export class NodeEditorDomRenderer {
                         input.click();
                     })
                     .children(
-                        ifjs(avatar, this.#renderMaterialIcon("person"), true),
+                        ifjs(avatar, GenericTemplates.materialIcon("person"), true),
                         ifjs(avatar, this.#renderAvatar(avatar)),
                     ).build(),
                 create("span")
@@ -285,7 +291,7 @@ export class NodeEditorDomRenderer {
                     .classes("flex", "spaced")
                     .children(
                         this.#renderUserComponent(),
-                        this.#renderButton(collapseTextState, () => {
+                        GenericTemplates.button(collapseTextState, () => {
                             collapsedState.value = !collapsedState.value;
                         }, collapseIconState),
                     ).build(),
@@ -307,31 +313,31 @@ export class NodeEditorDomRenderer {
                         create("h1")
                             .text(this.editor.graphInfo.name)
                             .onclick(() => {
-                                this.#renderInputPopup("Graph name", this.editor.graphInfo.name, name => {
+                                GenericTemplates.inputPopup("Graph name", this.editor.graphInfo.name, name => {
                                     this.editor.setGraphName(name);
                                     this.#renderFrame(true);
                                 });
                             })
                             .build(),
-                        this.#renderInfoPill(this.editor.graphInfo.public ? "Public" : "Private", this.editor.graphInfo.public ? "lock_open" : "lock")
+                        GenericTemplates.infoPill(this.editor.graphInfo.public ? "Public" : "Private", this.editor.graphInfo.public ? "lock_open" : "lock")
                     ).build(),
                 create("div")
                     .classes("flex")
                     .children(
-                        this.#renderButton("Add global section", () => {
-                            this.#renderInputPopup("Global name", "", name => {
+                        GenericTemplates.button("Add global section", () => {
+                            GenericTemplates.inputPopup("Global name", "", name => {
                                 this.editor.addGlobalSection(name);
                                 this.#renderFrame(true);
                             });
                         }, "add"),
-                        this.#renderButton("Download JSON", () => {
+                        GenericTemplates.button("Download JSON", () => {
                             const a = document.createElement('a');
                             a.href = URL.createObjectURL(new Blob([JSON.stringify(this.editor)], {type: 'application/json'}));
                             const timestamp = new Date().toISOString().replace(/:/g, '-');
                             a.download = 'node-editor-' + timestamp + '.json';
                             a.click();
                         }, "download"),
-                        this.#renderButton(uploadTextState, () => {
+                        GenericTemplates.button(uploadTextState, () => {
                             uploadIconState.value = "input";
                             uploadTextState.value = "Selecting...";
                             const input = document.createElement('input');
@@ -361,106 +367,40 @@ export class NodeEditorDomRenderer {
             ).build();
     }
 
-    #renderInfoPill(text, icon = null) {
-        return create("div")
-            .classes("info-pill")
-            .children(
-                icon ? this.#renderMaterialIcon(icon) : null,
-                create("span")
-                    .text(text)
-                    .build()
-            ).build();
-    }
-
-    #renderMaterialIcon(icon) {
-        return create("span")
-            .classes("material-symbols-outlined")
-            .text(icon)
-            .build();
-    }
-
-    #renderPopupContainer(children) {
-        return create("div")
-            .classes("popup-container")
-            .children(...children)
-            .build();
-    }
-
-    #removePopupContainers() {
-        document.querySelectorAll(".popup-container").forEach(popup => {
-            popup.remove();
-        });
-    }
-
-    #renderInputPopup(title, value, onSave, type = "text") {
+    #renderLoginPopup(onLogin) {
         const popup = create("div")
             .classes("input-popup", "flex-v")
             .children(
                 create("div")
                     .classes("input-popup-title")
-                    .text(title)
+                    .text("Login")
                     .build(),
                 create("input")
                     .classes("input-popup-input")
-                    .value(value)
-                    .type(type)
-                    .id("focus-input")
+                    .placeholder("Username")
+                    .id("username-input")
+                    .attributes("autofocus", "true")
                     .build(),
-                this.#renderPopupButtons(() => {
-                    onSave(popup.querySelector(".input-popup-input").value);
-                })
+                create("input")
+                    .classes("input-popup-input")
+                    .id("event-input")
+                    .placeholder("Password")
+                    .type("password")
+                    .build(),
+                GenericTemplates.popupButtons(onLogin)
             ).build();
-        const container = this.#renderPopupContainer([popup]);
+        const container = GenericTemplates.popupContainers([popup]);
         const editor = document.getElementById("editor");
         editor.appendChild(container);
-        const input = document.getElementById("focus-input");
-        input.focus();
+        const focusInput = document.getElementById("username-input");
+        focusInput.focus();
+        const input = document.getElementById("event-input");
         input.onkeydown = e => {
             if (e.key === "Enter") {
-                onSave(popup.querySelector(".input-popup-input").value);
+                onLogin();
+                UiActions.removePopupContainers();
             }
         }
-    }
-
-    #renderDropdownPopup(title, options, onSave) {
-        const popup = create("div")
-            .classes("input-popup", "flex-v")
-            .children(
-                create("div")
-                    .classes("input-popup-title")
-                    .text(title)
-                    .build(),
-                create("select")
-                    .classes("input-popup-input")
-                    .children(...options.map(option => {
-                        return create("option")
-                            .value(option)
-                            .text(option)
-                            .build();
-                    }))
-                    .build(),
-                this.#renderPopupButtons(() => {
-                    onSave(popup.querySelector(".input-popup-input").value);
-                })
-            ).build();
-        const container = this.#renderPopupContainer([popup]);
-        const editor = document.getElementById("editor");
-        editor.appendChild(container);
-    }
-
-    #renderPopupButtons(onSave = () => {}, onCancel = () => {}) {
-        return create("div")
-            .classes("flex", "spaced")
-            .children(
-                this.#renderButton("Cancel", () => {
-                    this.#removePopupContainers();
-                    onCancel();
-                }, "cancel"),
-                this.#renderButton("Save", () => {
-                    this.#removePopupContainers();
-                    onSave();
-                }, "save"),
-            ).build();
     }
 
     /**
@@ -482,11 +422,11 @@ export class NodeEditorDomRenderer {
                             return create("div")
                                 .classes("global-section-field")
                                 .children(
-                                    this.#renderInputField(field, global.get(field.name), newValue => {
+                                    GenericTemplates.inputField(field, global.get(field.name), newValue => {
                                         global.set(field.name, newValue);
                                         this.#renderFrame(true);
                                     }),
-                                    this.#renderButton("Remove field", () => {
+                                    GenericTemplates.button("Remove field", () => {
                                         global.removeFieldByName(field.name);
                                         this.#renderFrame(true);
                                     }, "delete"),
@@ -496,58 +436,13 @@ export class NodeEditorDomRenderer {
             ).build();
     }
 
-    #renderButton(text, onclick, icon = null) {
-        return create("button")
-            .classes("node-editor-button")
-            .onclick(onclick)
-            .onfocus(() => {
-                window.focusLock = true;
-            })
-            .onblur(() => {
-                window.focusLock = false;
-            })
-            .children(
-                icon ? this.#renderMaterialIcon(icon) : null,
-                create("span")
-                    .classes("node-editor-button-text")
-                    .text(text)
-                    .build()
-            ).build();
-    }
-
-    #renderSelect(options, onchange) {
-        return create("select")
-            .classes("node-editor-select")
-            .onmouseover(() => {
-                window.focusLock = true;
-            })
-            .onmouseout(() => {
-                window.focusLock = false;
-            })
-            .onfocus(() => {
-                window.focusLock = true;
-            })
-            .onblur(() => {
-                window.focusLock = false;
-            })
-            .children(...options.map(option => {
-                return create("option")
-                    .value(option.value)
-                    .text(option.text)
-                    .selected(option.selected)
-                    .build();
-            }))
-            .onchange(onchange)
-            .build();
-    }
-
     #renderGlobalsSettings(global) {
         return create("div")
             .classes("global-section-settings", "flex")
             .children(
-                this.#renderButton("Add field", () => {
-                    this.#renderInputPopup("Field name", "", name => {
-                        this.#renderDropdownPopup("Field value", Object.values(ValueTypes), type => {
+                GenericTemplates.button("Add field", () => {
+                    GenericTemplates.inputPopup("Field name", "", name => {
+                        GenericTemplates.dropdownPopup("Field value", Object.values(ValueTypes), type => {
                             const field = new InputField(name, type, null);
                             global.addField(field);
                             this.#renderFrame(true);
@@ -555,7 +450,7 @@ export class NodeEditorDomRenderer {
                         });
                     });
                 }, "add"),
-                this.#renderButton("Remove section", () => {
+                GenericTemplates.button("Remove section", () => {
                     this.editor.removeGlobalSection(global.name);
                     this.#renderFrame();
                 }, "delete"),
@@ -738,7 +633,7 @@ export class NodeEditorDomRenderer {
                     .classes("node-fields", "flex-v")
                     .children(
                         ...node.fields.map(field => {
-                            return this.#renderInputField(field, field.value, newValue => {
+                            return GenericTemplates.inputField(field, field.value, newValue => {
                                 node.set(field.name, newValue);
                                 this.#renderFrame();
                             });
@@ -796,7 +691,7 @@ export class NodeEditorDomRenderer {
                     .classes("node-title")
                     .text(node.name)
                     .build(),
-                small ? null : this.#renderSelect(window.nodeEditor.nodeTypes.map(t => {
+                small ? null : GenericTemplates.select(window.nodeEditor.nodeTypes.map(t => {
                     return {
                         value: t.name,
                         text: t.name,
@@ -830,100 +725,5 @@ export class NodeEditorDomRenderer {
             document.getElementById(connection.id).replaceWith(newNode);
             return null;
         }
-    }
-
-    /**
-     *
-     * @param field {InputField}
-     * @param value {*}
-     * @param onChange {function}
-     * @param errorState {FjsObservable}
-     * @returns {*}
-     */
-    #renderInput(field, value, onChange, errorState = signal("")) {
-        let type = field.type;
-        if (type === ValueTypes.boolean) {
-            type = 'checkbox';
-        } else if (type === ValueTypes.number || type === ValueTypes.string || type === ValueTypes.function) {
-            type = 'text';
-        }
-
-        const actualValue = this.editor.getValue(field.id);
-        const base = create("input")
-            .classes("node-field-input")
-            .type(type.toLowerCase())
-            .value(value)
-            .id(field.id)
-            .name(field.id)
-            .title(actualValue)
-            .onfocus(() => {
-                window.focusLock = true;
-            })
-            .onblur(() => {
-                window.focusLock = false;
-            })
-            .ondblclick(e => {
-                field.startConnecting(e);
-            })
-            .onkeydown(e => {
-                if (this.editor.fieldIsReadonly(field.id)) {
-                    e.target.value = field.value;
-                    this.editor.rerender();
-                }
-            })
-            .onchange(() => {
-                if (this.editor.fieldIsReadonly(field.id)) {
-                    return;
-                }
-                const input = document.getElementById(field.id);
-                if (!input.checkValidity() && (!input.value.startsWith("{{") && !input.value.endsWith("}}"))) {
-                    errorState.value = input.validationMessage;
-                } else {
-                    errorState.value = '';
-                    onChange(field.getValue(input.value));
-                }
-            });
-
-        if (this.editor.fieldIsReadonly(field.id)) {
-            base.classes("disabled");
-        }
-
-        return base.build();
-    }
-
-    #renderInputField(field, value, onChange) {
-        const errorState = signal('');
-        const hiddenClassState = signal(field.shownState.value ? '_' : 'hidden');
-        field.shownState.onUpdate = shown => {
-            if (shown) {
-                hiddenClassState.value = 'hidden';
-            } else {
-                hiddenClassState.value = '_';
-            }
-        };
-
-        return create("div")
-            .classes("node-field", hiddenClassState)
-            .children(
-                create("label")
-                    .classes("node-field-label")
-                    .for(field.id)
-                    .text(field.name)
-                    .build(),
-                create("div")
-                    .classes("node-field-value")
-                    .children(
-                        this.#renderInput(field, value, onChange, errorState),
-                        create("span")
-                            .classes("node-field-error")
-                            .text(errorState)
-                            .build(),
-                    ).build(),
-                create("div")
-                    .classes("node-field-connector")
-                    .onclick(e => {
-                        field.startConnecting(e);
-                    }).build()
-            ).build();
     }
 }

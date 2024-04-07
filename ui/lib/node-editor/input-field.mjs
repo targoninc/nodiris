@@ -1,5 +1,5 @@
 import {ValueTypes} from "./value-types.mjs";
-import {FjsObservable} from "https://fjs.targoninc.com/f.js";
+import {signal} from "https://fjs.targoninc.com/f.js";
 import {IdGenerator} from "./id-generator.mjs";
 import {EditorConnection} from "./editor-connection.mjs";
 
@@ -11,7 +11,7 @@ export class InputField {
         }
         this.type = type;
         this.required = required;
-        this.shownState = new FjsObservable(shown);
+        this.shownState = signal(shown);
         this.shown = shown;
         this.shownState.onUpdate = shown => {
             this.shown = shown;

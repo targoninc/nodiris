@@ -1,8 +1,8 @@
 import {EditorConnection} from "./editor-connection.mjs";
-import {FjsObservable} from "https://fjs.targoninc.com/f.js";
 import {IdGenerator} from "./id-generator.mjs";
 import {InputField} from "./input-field.mjs";
 import {ValueTypes} from "./value-types.mjs";
+import {signal} from "https://fjs.targoninc.com/f.js";
 
 export class EditorNode {
     /**
@@ -27,7 +27,7 @@ export class EditorNode {
         this.fields = newFields;
         this.id = id ?? IdGenerator.generateId();
         this.position = position;
-        this.positionState = new FjsObservable(position);
+        this.positionState = signal(position);
         this.connections = connections.map(connection => new EditorConnection(connection.from, connection.to, connection.id));
     }
 
