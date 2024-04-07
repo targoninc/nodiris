@@ -62,6 +62,12 @@ export class DB {
     }
 
     async saveAvatar(userId, avatar) {
-        await this.query("UPDATE nodeeditor.avatars SET avatar = ? WHERE user_id = ?", [avatar, userId]);
+        await this.query("INSERT INTO nodeeditor.avatars (user_id, avatar_data) VALUES (?, ?) ON DUPLICATE KEY UPDATE avatar_data = ?", [userId, avatar, avatar]);
+    }
+
+    async getAvatar(userId) {
+        const rows = await this.query("SELECT avatar_data FROM nodeeditor.avatars WHERE user_id = ?", [userId]);
+        const firstRow = rows[0];
+        return firstRow ? firstRow.avatar_data : null;
     }
 }

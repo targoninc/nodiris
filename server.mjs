@@ -7,6 +7,7 @@ import session from "express-session";
 import {PassportDeserializeUser, PassportSerializeUser, PassportStrategy} from "./api/PassportStrategy.mjs";
 import {AuthActions} from "./api/AuthActions.mjs";
 import dotenv from "dotenv";
+import {UserActions} from "./api/UserActions.mjs";
 
 dotenv.config();
 
@@ -35,7 +36,8 @@ passport.deserializeUser(PassportDeserializeUser(db));
 
 app.post("/api/authorize", AuthActions.authorizeUser(db));
 app.post("/api/logout", AuthActions.logout());
-app.get("/api/isAuthorized", AuthActions.isAuthorized());
+app.get("/api/isAuthorized", AuthActions.isAuthorized(db));
+app.post("/api/saveAvatar", AuthActions.checkAuthenticated, UserActions.saveAvatar(db));
 
 app.use(express.static(path.join(__dirname, '/ui')));
 

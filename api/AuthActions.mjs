@@ -28,6 +28,7 @@ export class AuthActions {
                     const outUser = {
                         id: user.id,
                         username: user.username,
+                        avatar: await db.getAvatar(user.id)
                     }
                     return res.send({
                         user: outUser
@@ -54,10 +55,14 @@ export class AuthActions {
         }
     }
 
-    static isAuthorized() {
-        return (req, res) => {
+    static isAuthorized(db) {
+        return async (req, res) => {
             if (req.isAuthenticated()) {
-                res.send({ user: req.user });
+                const user = {
+                    ...req.user,
+                    avatar: await db.getAvatar(req.user.id)
+                }
+                res.send({ user });
                 return;
             }
             res.send({});

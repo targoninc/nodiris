@@ -3,8 +3,8 @@ import {Icon} from "../icons/icon.mjs";
 import {InputField} from "../input-field.mjs";
 import {ValueTypes} from "../value-types.mjs";
 import {Keymap} from "../keymap.mjs";
-import {NodeEditor} from "../node-editor.mjs";
 import {Auth} from "../auth/auth.mjs";
+import {Api} from "../auth/api.mjs";
 
 export class NodeEditorDomRenderer {
     constructor(editor) {
@@ -154,10 +154,15 @@ export class NodeEditorDomRenderer {
     }
 
     #renderUserComponent() {
-        const authenticated = signal(false);
-        const user = signal(null);
-        const buttonText = signal("Login");
-        const buttonIcon = signal("login");
+        const user = this.editor.user;
+        const authenticated = signal(user.value !== null);
+        const buttonText = signal(authenticated.value ? "Logout" : "Login");
+        const buttonIcon = signal(authenticated.value ? "logout" : "login");
+        user.subscribe(u => {
+            authenticated.value = u !== null;
+            buttonText.value = u !== null ? "Logout" : "Login";
+            buttonIcon.value = u !== null ? "logout" : "login";
+        });
         const error = signal(null);
 
         return create("div")
@@ -182,6 +187,7 @@ export class NodeEditorDomRenderer {
                                             } else {
                                                 authenticated.value = true;
                                                 user.value = res.user;
+                                                this.editor.user = res.user;
                                                 buttonText.value = "Logout";
                                                 buttonIcon.value = "logout";
                                             }
@@ -200,18 +206,62 @@ export class NodeEditorDomRenderer {
 
     #renderLoggedInComponent(user) {
         const username = signal(user.value ? user.value.username : "");
+        const avatar = signal(user.value ? user.value.avatar : null);
         user.subscribe(u => {
             username.value = u.username;
+            avatar.value = u.avatar;
         });
 
         return create("div")
             .classes("flex", "node-editor-user")
             .children(
-                this.#renderMaterialIcon("person"),
+                create("div")
+                    .classes("flex", "ignore-child-pointer")
+                    .onclick(() => {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = 'image/*';
+                        input.onchange = () => {
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                                const base64 = reader.result.split(',')[1];
+                                avatar.value = base64;
+                                Api.saveAvatar(base64).then(() => {
+                                    this.#renderFrame(true);
+                                });
+                            };
+                            reader.readAsDataURL(input.files[0]);
+                        };
+                        input.click();
+                    })
+                    .children(
+                        ifjs(avatar, this.#renderMaterialIcon("person"), true),
+                        ifjs(avatar, this.#renderAvatar(avatar)),
+                    ).build(),
                 create("span")
                     .text(username)
                     .build()
             ).build();
+    }
+
+    #renderAvatar(avatar) {
+        const src = signal(`data:image/png;base64,${avatar.value}`);
+        avatar.subscribe(async a => {
+            if (a.constructor.name === "Object") {
+                let uint8Array = new Uint8Array(a.data);
+                const blob = new Blob([uint8Array], {type: a.type});
+                const base64 = await blob.text();
+                src.value = `data:image/png;base64,${base64}`;
+            } else {
+                const base64 = a.toString('base64');
+                src.value = `data:image/png;base64,${base64}`;
+            }
+        });
+
+        return create("img")
+            .classes("node-editor-avatar")
+            .attributes("src", src)
+            .build();
     }
 
     #renderEditorGlobals(collapsedState) {
@@ -338,8 +388,10 @@ export class NodeEditorDomRenderer {
             .build();
     }
 
-    #removePopupContainer() {
-        document.querySelector(".popup-container")?.remove();
+    #removePopupContainers() {
+        document.querySelectorAll(".popup-container").forEach(popup => {
+            popup.remove();
+        });
     }
 
     #renderInputPopup(title, value, onSave, type = "text") {
@@ -403,12 +455,12 @@ export class NodeEditorDomRenderer {
             .classes("flex", "spaced")
             .children(
                 this.#renderButton("Cancel", () => {
+                    this.#removePopupContainers();
                     onCancel();
-                    this.#removePopupContainer();
                 }, "cancel"),
                 this.#renderButton("Save", () => {
+                    this.#removePopupContainers();
                     onSave();
-                    this.#removePopupContainer();
                 }, "save"),
             ).build();
     }

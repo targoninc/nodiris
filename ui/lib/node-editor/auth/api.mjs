@@ -43,4 +43,24 @@ export class Api {
         }
         return await res.json();
     }
+
+    static async saveAvatar(avatar) {
+        const res = await fetch(`/api/saveAvatar`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                avatar
+            })
+        });
+        if (res.status !== 200) {
+            return {
+                error: await res.text()
+            };
+        }
+        return await res.json();
+    }
 }

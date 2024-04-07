@@ -375,3 +375,13 @@ h1 {
     max-height: max-content;
     height: max-content;
 }
+
+.ignore-child-pointer * {
+    pointer-events: none;
+}
+
+.node-editor-avatar {
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+}

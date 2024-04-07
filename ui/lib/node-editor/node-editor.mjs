@@ -1,4 +1,4 @@
-import {FjsObservable} from "https://fjs.targoninc.com/f.js";
+import {FjsObservable, signal} from "https://fjs.targoninc.com/f.js";
 import {ValueTypes} from "./value-types.mjs";
 import {EditorNode} from "./editor-node.mjs";
 import {InputField} from "./input-field.mjs";
@@ -6,6 +6,7 @@ import {NodeType} from "./node-type.mjs";
 import {DefaultEditorSettings} from "./default-editor-settings.mjs";
 import {GlobalSection} from "./global-section.mjs";
 import {DefaultEditorGraphinfo} from "./default-editor-graphinfo.mjs";
+import {Api} from "./auth/api.mjs";
 
 export class NodeEditor {
     /**
@@ -41,8 +42,25 @@ export class NodeEditor {
         this.rerender = () => {
             console.log("rerender method is not set. Make sure your renderer is set up correctly.");
         };
-        this.setTheme(this.settings.theme);
         this.selectedNodes = [];
+        this.user = signal(null);
+        this.initialize();
+    }
+
+    initialize() {
+        this.setTheme(this.settings.theme);
+        this.loadUser();
+    }
+
+    loadUser() {
+        Api.isAuthorized().then(res => {
+            if (res.user) {
+                console.log("User is already authorized");
+                this.user.value = res.user;
+            } else {
+                console.log("User is not authorized");
+            }
+        });
     }
 
     addGlobalSection(name) {
