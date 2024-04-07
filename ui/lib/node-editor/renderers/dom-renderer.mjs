@@ -5,6 +5,7 @@ import {ValueTypes} from "../value-types.mjs";
 import {Keymap} from "../keymap.mjs";
 import {Auth} from "../auth/auth.mjs";
 import {Api} from "../auth/api.mjs";
+import {ImageProcessor} from "../image-processor.mjs";
 
 export class NodeEditorDomRenderer {
     constructor(editor) {
@@ -245,17 +246,14 @@ export class NodeEditorDomRenderer {
     }
 
     #renderAvatar(avatar) {
-        const src = signal(`data:image/png;base64,${avatar.value}`);
+        const src = signal(null);
         avatar.subscribe(async a => {
-            if (a.constructor.name === "Object") {
-                let uint8Array = new Uint8Array(a.data);
-                const blob = new Blob([uint8Array], {type: a.type});
-                const base64 = await blob.text();
-                src.value = `data:image/png;base64,${base64}`;
-            } else {
-                const base64 = a.toString('base64');
-                src.value = `data:image/png;base64,${base64}`;
-            }
+            ImageProcessor.getBase64Src(a).then(s => {
+                src.value = s;
+            });
+        });
+        ImageProcessor.getBase64Src(avatar.value).then(s => {
+            src.value = s;
         });
 
         return create("img")
