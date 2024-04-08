@@ -8,6 +8,7 @@ import {Api} from "../auth/api.mjs";
 import {ImageProcessor} from "../image-processor.mjs";
 import {UiActions} from "./ui-actions.mjs";
 import {GenericTemplates} from "../templates/generic.templates.mjs";
+import {NodeType} from "../node-type.mjs";
 
 export class NodeEditorDomRenderer {
     constructor(editor) {
@@ -298,7 +299,6 @@ export class NodeEditorDomRenderer {
                         }, collapseIconState),
                     ).build(),
                 this.#renderGeneralSection(),
-                ...this.editor.globals.map(global => this.#renderEditorGlobalSection(global))
             ).build();
     }
 
@@ -326,12 +326,6 @@ export class NodeEditorDomRenderer {
                 create("div")
                     .classes("flex")
                     .children(
-                        GenericTemplates.button("Add global section", () => {
-                            GenericTemplates.inputPopup("Global name", "", name => {
-                                this.editor.addGlobalSection(name);
-                                this.#renderFrame(true);
-                            });
-                        }, "add"),
                         GenericTemplates.button("Download JSON", () => {
                             const a = document.createElement('a');
                             a.href = URL.createObjectURL(new Blob([JSON.stringify(this.editor)], {type: 'application/json'}));
@@ -365,7 +359,91 @@ export class NodeEditorDomRenderer {
                             };
                             input.click();
                         }, uploadIconState),
-                    ).build()
+                    ).build(),
+                this.#tabSwitcher([
+                    {
+                        name: "Globals",
+                        content: this.#renderGlobalsSection()
+                    },
+                    {
+                        name: "Node types",
+                        content: this.#renderNodeTypesSection()
+                    }
+                ])
+            ).build();
+    }
+
+    #renderNodeTypesSection() {
+        return create("div")
+            .classes("flex-v")
+            .children(
+                GenericTemplates.button("Add node type", () => {
+                    GenericTemplates.inputPopup("Node type name", "", name => {
+                        this.editor.addNodeType(new NodeType(name));
+                        this.#renderFrame(true);
+                    });
+                }, "add"),
+                ...this.editor.nodeTypes.map(nodeType => {
+                    return create("div")
+                        .classes("node-editor-node-type")
+                        .children(
+                            create("h1")
+                                .text(nodeType.name)
+                                .build(),
+                            GenericTemplates.button("Remove node type", () => {
+                                this.editor.removeNodeTypeByName(nodeType.name);
+                                this.#renderFrame(true);
+                            }, "delete"),
+                        ).build();
+                })
+            ).build();
+    }
+
+    #renderGlobalsSection() {
+        return create("div")
+            .classes("flex-v")
+            .children(
+                GenericTemplates.button("Add global section", () => {
+                    GenericTemplates.inputPopup("Global name", "", name => {
+                        this.editor.addGlobalSection(name);
+                        this.#renderFrame(true);
+                    });
+                }, "add"),
+                ...this.editor.globals.map(global => this.#renderEditorGlobalSection(global))
+            ).build();
+    }
+
+    #tabSwitcher(tabs) {
+        const tabState = signal(tabs[0].name);
+        const tabContent = signal(tabs[0].content);
+        const tabButtons = tabs.map(tab => {
+            const buttonActive = signal(tabState.value === tab.name ? "active" : "_");
+            tabState.subscribe(tabName => {
+                buttonActive.value = tabName === tab.name ? "active" : "_";
+            });
+
+            return create("button")
+                .classes("node-editor-tab-button", buttonActive)
+                .onclick(() => {
+                    tabState.value = tab.name;
+                    tabContent.value = tab.content;
+                })
+                .text(tab.name)
+                .build();
+        });
+
+        return create("div")
+            .classes("flex-v")
+            .children(
+                create("div")
+                    .classes("node-editor-tab-switcher")
+                    .children(
+                        ...tabButtons
+                    ).build(),
+                create("div")
+                    .classes("node-editor-tab-content")
+                    .children(tabContent)
+                    .build()
             ).build();
     }
 

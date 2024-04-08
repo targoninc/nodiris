@@ -385,3 +385,26 @@ h1 {
     height: 1em;
     border-radius: 50%;
 }
+
+.node-editor-tab-switcher {
+    border: 1px solid var(--node-border);
+    border-radius: var(--editor-border-radius);
+    background: var(--editor-background);
+    display: flex;
+    overflow: auto;
+    margin-bottom: var(--editor-padding);
+    box-shadow: 0 15px 10px -5px rgba(0, 0, 0, 0.5);
+}
+
+.node-editor-tab-button {
+    border: none;
+    border-radius: 0;
+}
+
+.node-editor-tab-button.active {
+    background: var(--outgoing-color);
+}
+
+.node-editor-tab-button:hover {
+    background: var(--node-border);
+}
