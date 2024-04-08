@@ -192,7 +192,7 @@ export class NodeEditorDomRenderer {
                                         } else {
                                             authenticated.value = true;
                                             user.value = res.user;
-                                            this.editor.user = res.user;
+                                            this.editor.user.value = res.user;
                                             buttonText.value = "Logout";
                                             buttonIcon.value = "logout";
                                         }
@@ -210,14 +210,16 @@ export class NodeEditorDomRenderer {
 
     #renderLoggedInComponent(user) {
         const username = signal(user.value ? user.value.username : "");
-        const avatar = signal(user.value ? user.value.avatar : null);
-        user.subscribe(u => {
+        const avatar = signal(user.value ? user.value.avatar ?? Icon.testImage() : Icon.testImage());
+        const updateUserDeps = (u) => {
             if (!u) {
                 return;
             }
             username.value = u.username;
-            avatar.value = u.avatar;
-        });
+            avatar.value = u.avatar ?? Icon.testImage();
+        }
+        user.subscribe(updateUserDeps);
+        updateUserDeps(user.value);
 
         return create("div")
             .classes("flex", "node-editor-user")
@@ -252,7 +254,7 @@ export class NodeEditorDomRenderer {
     }
 
     #renderAvatar(avatar) {
-        const src = signal(null);
+        const src = signal(Icon.testImage());
         avatar.subscribe(async a => {
             ImageProcessor.getBase64Src(a).then(s => {
                 src.value = s;
