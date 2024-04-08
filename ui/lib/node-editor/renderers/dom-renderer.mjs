@@ -321,7 +321,9 @@ export class NodeEditorDomRenderer {
                                 });
                             })
                             .build(),
-                        GenericTemplates.infoPill(this.editor.graphInfo.public ? "Public" : "Private", this.editor.graphInfo.public ? "lock_open" : "lock")
+                        GenericTemplates.infoPill(this.editor.graphInfo.public ? "Public" : "Private",
+                            this.editor.graphInfo.public ? "lock_open" : "lock",
+                            "This graph is only visible to you")
                     ).build(),
                 create("div")
                     .classes("flex")

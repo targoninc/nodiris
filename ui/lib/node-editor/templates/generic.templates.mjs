@@ -120,9 +120,10 @@ export class GenericTemplates {
             .build();
     }
 
-    static infoPill(text, icon = null) {
+    static infoPill(text, icon = null, title = null) {
         return create("div")
             .classes("info-pill")
+            .title(title)
             .children(
                 icon ? this.materialIcon(icon) : null,
                 create("span")
