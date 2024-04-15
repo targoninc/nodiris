@@ -29,7 +29,7 @@
 ## Removing multiple nodes
 
 - Drag while holding left mouse button to select multiple nodes.
-- Right click on the canvas.
+- Right-click on the canvas.
 - Click "Remove selected nodes".
 
 ## Connecting nodes
@@ -43,6 +43,14 @@
 
 - Click the circle next to a field or double-click the input of the field.
 - Click the field you want to connect to.
+
+## Shortcuts
+
+`t` - Toggle theme
+
+`g` - Toggle grid
+
+`c` - Toggle connection lines between fields
 
 # How do functions work?
 
