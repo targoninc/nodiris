@@ -19,8 +19,8 @@ export class NodeEditorDomRenderer {
             this.#renderFrame();
         });
         this.container = null;
-        this.panelCollapsedState = signal(false);
         this.lastNodeClick = null;
+        this.panelCollapsedState = signal(false);
         this.language = store().get(StoreKeys.language) ?? "en";
         store().set(StoreKeys.language, this.language);
     }
@@ -420,8 +420,8 @@ export class NodeEditorDomRenderer {
     }
 
     #tabSwitcher(tabs) {
-        const tabState = signal(tabs[0].name);
-        const tabContent = signal(tabs[0].content);
+        const tabState = store().get(StoreKeys.tabName$);
+        const tabContent = signal(tabs.find(tab => tab.name === tabState.value).content);
         const tabButtons = tabs.map(tab => {
             const buttonActive = signal(tabState.value === tab.name ? "active" : "_");
             tabState.subscribe(tabName => {

@@ -8,6 +8,7 @@ import {GlobalSection} from "./global-section.mjs";
 import {DefaultEditorGraphinfo} from "./default-editor-graphinfo.mjs";
 import {Api} from "./auth/api.mjs";
 import {StoreKeys} from "./enums/store-keys.mjs";
+import {UiText} from "./enums/ui-text.mjs";
 
 export class NodeEditor {
     /**
@@ -42,9 +43,10 @@ export class NodeEditor {
         this.selectedNodes = [];
         this.user = signal(null);
         this.uiStates = {
-            selectedTab: signal("nodes"),
+            selectedTab: signal(UiText.get("globals")),
         };
 
+        store().set(StoreKeys.tabName$, this.uiStates.selectedTab);
         store().set(StoreKeys.nodeEditor, this);
 
         this.rerender = () => {
