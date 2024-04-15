@@ -80,7 +80,28 @@ export class NodeEditor {
     }
 
     setRenderer(method) {
-        this.rerender = method;
+        this.rerender = (...args) => {
+            this.consistencyCheck();
+            method(...args);
+        };
+    }
+
+    consistencyCheck() {
+        for (const node of this.nodes) {
+            for (const connection of node.connections) {
+                if (!this.nodes.find(n => n.id === connection.to)) {
+                    node.disconnect(connection.to);
+                }
+            }
+
+            for (const field of node.fields) {
+                for (const nodeType of this.nodeTypes) {
+                    if (nodeType.name === node.type.name) {
+                        node.setType(nodeType);
+                    }
+                }
+            }
+        }
     }
 
     addNodeType(type) {

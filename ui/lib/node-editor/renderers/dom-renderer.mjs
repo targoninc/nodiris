@@ -16,8 +16,8 @@ import {ValueTypeIcon} from "../enums/value-type-icon.mjs";
 export class NodeEditorDomRenderer {
     constructor(editor) {
         this.editor = editor;
-        this.editor.setRenderer(() => {
-            this.#renderFrame();
+        this.editor.setRenderer((force = false) => {
+            this.#renderFrame(force)
         });
         this.container = null;
         this.lastNodeClick = null;
@@ -29,7 +29,7 @@ export class NodeEditorDomRenderer {
     start(container) {
         this.container = container;
         this.registerKeyBindings();
-        this.#renderFrame();
+        this.editor.rerender();
     }
 
     registerKeyBindings() {
@@ -42,7 +42,7 @@ export class NodeEditorDomRenderer {
                 if (keys.includes(e.key)) {
                     e.preventDefault();
                     Keymap[key].action();
-                    this.#renderFrame();
+                    this.editor.rerender();
                 }
             });
         }
@@ -64,7 +64,7 @@ export class NodeEditorDomRenderer {
                 height: this.container.clientHeight
             };
             window.onresize = () => {
-                this.#renderFrame();
+                this.editor.rerender();
             }
             const zoom = this.editor.zoomState.value;
             if (zoom < 1) {
@@ -242,7 +242,7 @@ export class NodeEditorDomRenderer {
                                 const base64 = reader.result.split(',')[1];
                                 avatar.value = base64;
                                 Api.saveAvatar(base64).then(() => {
-                                    this.#renderFrame(true);
+                                    this.editor.rerender(true);
                                 });
                             };
                             reader.readAsDataURL(input.files[0]);
@@ -322,7 +322,7 @@ export class NodeEditorDomRenderer {
                             .onclick(() => {
                                 GenericTemplates.inputPopup("Graph name", this.editor.graphInfo.name, name => {
                                     this.editor.setGraphName(name);
-                                    this.#renderFrame(true);
+                                    this.editor.rerender(true);
                                 });
                             })
                             .build(),
@@ -358,7 +358,7 @@ export class NodeEditorDomRenderer {
                                 reader.onload = () => {
                                     const json = JSON.parse(reader.result);
                                     this.editor.loadFromJSON(json);
-                                    this.#renderFrame(true);
+                                    this.editor.rerender(true);
                                     uploadIconState.value = "upload";
                                     uploadTextState.value = UiText.get("uploadJson");
                                 };
@@ -387,7 +387,7 @@ export class NodeEditorDomRenderer {
                 GenericTemplates.button(UiText.get("addNodeType"), () => {
                     GenericTemplates.inputPopup(UiText.get("nodeTypeName"), "", name => {
                         this.editor.addNodeType(new NodeType(name));
-                        this.#renderFrame(true);
+                        this.editor.rerender(true);
                     });
                 }, "add"),
                 ...this.editor.nodeTypes.map(nodeType => {
@@ -404,13 +404,13 @@ export class NodeEditorDomRenderer {
                                         GenericTemplates.inputPopup(UiText.get("fieldName"), "", name => {
                                             GenericTemplates.dropdownPopup(UiText.get("fieldType"), Object.values(ValueTypes), type => {
                                                 nodeType.addField(new InputField(name, type, null));
-                                                this.#renderFrame(true);
+                                                this.editor.rerender(true);
                                             });
                                         });
                                     }, "add"),
                                     GenericTemplates.button(UiText.get("removeNodeType"), () => {
                                         this.editor.removeNodeTypeByName(nodeType.name);
-                                        this.#renderFrame(true);
+                                        this.editor.rerender(true);
                                     }, "delete")
                                 ).build(),
                             create("div")
@@ -430,7 +430,7 @@ export class NodeEditorDomRenderer {
                                                     ).build(),
                                                 GenericTemplates.button(UiText.get("removeField"), () => {
                                                     nodeType.removeFieldByName(field.name);
-                                                    this.#renderFrame(true);
+                                                    this.editor.rerender(true);
                                                 }, "delete"),
                                             ).build();
                                     }),
@@ -447,7 +447,7 @@ export class NodeEditorDomRenderer {
                 GenericTemplates.button(UiText.get("addGlobalSection"), () => {
                     GenericTemplates.inputPopup(UiText.get("globalName"), "", name => {
                         this.editor.addGlobalSection(name);
-                        this.#renderFrame(true);
+                        this.editor.rerender(true);
                     });
                 }, "add"),
                 ...this.editor.globals.map(global => this.#renderEditorGlobalSection(global))
@@ -545,11 +545,11 @@ export class NodeEditorDomRenderer {
                                 .children(
                                     GenericTemplates.inputField(field, global.get(field.name), newValue => {
                                         global.set(field.name, newValue);
-                                        this.#renderFrame(true);
+                                        this.editor.rerender(true);
                                     }),
                                     GenericTemplates.button(UiText.get("removeField"), () => {
                                         global.removeFieldByName(field.name);
-                                        this.#renderFrame(true);
+                                        this.editor.rerender(true);
                                     }, "delete"),
                                 ).build();
                         })
@@ -566,14 +566,14 @@ export class NodeEditorDomRenderer {
                         GenericTemplates.dropdownPopup(UiText.get("fieldValue"), Object.values(ValueTypes), type => {
                             const field = new InputField(name, type, null);
                             global.addField(field);
-                            this.#renderFrame(true);
+                            this.editor.rerender(true);
                             document.getElementById(field.id).focus();
                         });
                     });
                 }, "add"),
                 GenericTemplates.button(UiText.get("removeSection"), () => {
                     this.editor.removeGlobalSection(global.name);
-                    this.#renderFrame();
+                    this.editor.rerender();
                 }, "delete"),
             ).build();
     }
@@ -756,7 +756,7 @@ export class NodeEditorDomRenderer {
                         ...node.fields.map(field => {
                             return GenericTemplates.inputField(field, field.value, newValue => {
                                 node.set(field.name, newValue);
-                                this.#renderFrame();
+                                this.editor.rerender();
                             });
                         })
                     ).build(),
@@ -778,11 +778,11 @@ export class NodeEditorDomRenderer {
             .children(
                 this.#renderMenuItem(UiText.get("removeNode"), () => {
                     this.editor.removeNodeById(node.id);
-                    this.#renderFrame(true);
+                    this.editor.rerender(true);
                 }, "delete"),
                 this.#renderMenuItem(UiText.get("duplicateNode"), () => {
                     this.editor.duplicateNode(node);
-                    this.#renderFrame(true);
+                    this.editor.rerender(true);
                 }, "copy"),
                 this.#renderMenuItem(UiText.get("connect"), e => {
                     node.startConnecting(e);
@@ -821,7 +821,7 @@ export class NodeEditorDomRenderer {
                 }), e => {
                     const type = this.editor.nodeTypes.find(type => type.name === e.target.value);
                     node.setType(type);
-                    this.#renderFrame();
+                    this.editor.rerender();
                 }),
             ).build();
     }
