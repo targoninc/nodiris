@@ -229,7 +229,7 @@ button:hover {
     height: 1em;
 }
 
-.global-section-field {
+.global-section-field, .node-editor-node-type-field {
     border: 1px solid var(--node-border);
     border-radius: var(--editor-border-radius);
     padding: var(--editor-padding);
@@ -361,8 +361,14 @@ input.disabled {
 }
 
 h1 {
-    font-size: calc(var(--editor-font-size) * 2);
     margin: 0;
+    font-size: calc(var(--editor-font-size) * 2);
+}
+
+h2 {
+    margin: 0;
+    font-weight: 500;
+    font-size: 1.3em;
 }
 
 .info-pill {

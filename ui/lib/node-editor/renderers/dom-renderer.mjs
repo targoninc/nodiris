@@ -11,6 +11,7 @@ import {GenericTemplates} from "../templates/generic.templates.mjs";
 import {NodeType} from "../node-type.mjs";
 import {StoreKeys} from "../enums/store-keys.mjs";
 import {UiText} from "../enums/ui-text.mjs";
+import {ValueTypeIcon} from "../enums/value-type-icon.mjs";
 
 export class NodeEditorDomRenderer {
     constructor(editor) {
@@ -391,15 +392,49 @@ export class NodeEditorDomRenderer {
                 }, "add"),
                 ...this.editor.nodeTypes.map(nodeType => {
                     return create("div")
-                        .classes("node-editor-node-type")
+                        .classes("node-editor-node-type", "flex-v")
                         .children(
                             create("h1")
                                 .text(nodeType.name)
                                 .build(),
-                            GenericTemplates.button(UiText.get("removeNodeType"), () => {
-                                this.editor.removeNodeTypeByName(nodeType.name);
-                                this.#renderFrame(true);
-                            }, "delete"),
+                            create("div")
+                                .classes("flex")
+                                .children(
+                                    GenericTemplates.button(UiText.get("addField"), () => {
+                                        GenericTemplates.inputPopup(UiText.get("fieldName"), "", name => {
+                                            GenericTemplates.dropdownPopup(UiText.get("fieldType"), Object.values(ValueTypes), type => {
+                                                nodeType.addField(new InputField(name, type, null));
+                                                this.#renderFrame(true);
+                                            });
+                                        });
+                                    }, "add"),
+                                    GenericTemplates.button(UiText.get("removeNodeType"), () => {
+                                        this.editor.removeNodeTypeByName(nodeType.name);
+                                        this.#renderFrame(true);
+                                    }, "delete")
+                                ).build(),
+                            create("div")
+                                .classes("flex-v")
+                                .children(
+                                    ...nodeType.fields.map(field => {
+                                        return create("div")
+                                            .classes("node-editor-node-type-field")
+                                            .children(
+                                                create("div")
+                                                    .classes("flex", "center-children", "spaced")
+                                                    .children(
+                                                        create("h2")
+                                                            .text(field.name)
+                                                            .build(),
+                                                        GenericTemplates.infoPill(field.type, ValueTypeIcon.get(field.type), UiText.get("fieldType")),
+                                                    ).build(),
+                                                GenericTemplates.button(UiText.get("removeField"), () => {
+                                                    nodeType.removeFieldByName(field.name);
+                                                    this.#renderFrame(true);
+                                                }, "delete"),
+                                            ).build();
+                                    }),
+                                ).build(),
                         ).build();
                 })
             ).build();

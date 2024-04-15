@@ -278,7 +278,7 @@ export class NodeEditor {
     finishFieldConnection(fromId, toId) {
         const fields = this.getAllFields();
         const sourceField = fields.find(field => field.id === fromId);
-        const isRemoval = !sourceField.canConnectTo(toId);
+        const isRemoval = sourceField && !sourceField.canConnectTo(toId);
         sourceField.unhighlightAsConnectionSource();
         for (const field of fields) {
             if (field.id === fromId) {

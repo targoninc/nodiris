@@ -20,8 +20,10 @@ export class GenericTemplates {
                     .id("focus-input")
                     .build(),
                 this.popupButtons(() => {
-                    onSave(popup.querySelector(".input-popup-input").value);
-                })
+                    const value = popup.querySelector(".input-popup-input").value;
+                    UiActions.removePopupContainers();
+                    onSave(value);
+                }, () => {}, false)
             ).build();
         const container = this.popupContainers([popup]);
         const editor = document.getElementById("editor");
@@ -30,8 +32,9 @@ export class GenericTemplates {
         input.focus();
         input.onkeydown = e => {
             if (e.key === "Enter") {
-                onSave(popup.querySelector(".input-popup-input").value);
+                const value = popup.querySelector(".input-popup-input").value;
                 UiActions.removePopupContainers();
+                onSave(value);
             }
         }
     }
@@ -54,25 +57,31 @@ export class GenericTemplates {
                     }))
                     .build(),
                 this.popupButtons(() => {
-                    onSave(popup.querySelector(".input-popup-input").value);
-                })
+                    const value = popup.querySelector(".input-popup-input").value;
+                    UiActions.removePopupContainers();
+                    onSave(value);
+                }, () => {}, false)
             ).build();
         const container = this.popupContainers([popup]);
         const editor = document.getElementById("editor");
         editor.appendChild(container);
     }
 
-    static popupButtons(onSave = () => {}, onCancel = () => {}) {
+    static popupButtons(onSave = () => {}, onCancel = () => {}, removePopups = true) {
         return create("div")
             .classes("flex", "spaced")
             .children(
                 this.button(UiText.get("cancel"), () => {
                     onCancel();
-                    UiActions.removePopupContainers();
+                    if (removePopups) {
+                        UiActions.removePopupContainers();
+                    }
                 }, "cancel"),
                 this.button(UiText.get("save"), () => {
                     onSave();
-                    UiActions.removePopupContainers();
+                    if (removePopups) {
+                        UiActions.removePopupContainers();
+                    }
                 }, "save"),
             ).build();
     }
