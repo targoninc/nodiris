@@ -1,6 +1,8 @@
-import {create, signal} from "https://fjs.targoninc.com/f.js";
+import {create, signal, store} from "https://fjs.targoninc.com/f.js";
 import {UiActions} from "../renderers/ui-actions.mjs";
 import {ValueTypes} from "../value-types.mjs";
+import {StoreKeys} from "../enums/store-keys.mjs";
+import {UiText} from "../enums/ui-text.mjs";
 
 export class GenericTemplates {
     static inputPopup(title, value, onSave, type = "text") {
@@ -64,11 +66,11 @@ export class GenericTemplates {
         return create("div")
             .classes("flex", "spaced")
             .children(
-                this.button("Cancel", () => {
+                this.button(UiText.get("cancel"), () => {
                     onCancel();
                     UiActions.removePopupContainers();
                 }, "cancel"),
-                this.button("Save", () => {
+                this.button(UiText.get("save"), () => {
                     onSave();
                     UiActions.removePopupContainers();
                 }, "save"),
@@ -197,6 +199,7 @@ export class GenericTemplates {
         } else if (type === ValueTypes.number || type === ValueTypes.string || type === ValueTypes.function) {
             type = 'text';
         }
+        const editor = store().get(StoreKeys.nodeEditor);
 
         const actualValue = field.value;
         const base = create("input")
@@ -216,13 +219,13 @@ export class GenericTemplates {
                 field.startConnecting(e);
             })
             .onkeydown(e => {
-                if (window.nodeEditor.fieldIsReadonly(field.id)) {
+                if (editor.fieldIsReadonly(field.id)) {
                     e.target.value = field.value;
-                    window.nodeEditor.rerender();
+                    editor.rerender();
                 }
             })
             .onchange(() => {
-                if (window.nodeEditor.fieldIsReadonly(field.id)) {
+                if (editor.fieldIsReadonly(field.id)) {
                     return;
                 }
                 const input = document.getElementById(field.id);
@@ -234,7 +237,7 @@ export class GenericTemplates {
                 }
             });
 
-        if (window.nodeEditor.fieldIsReadonly(field.id)) {
+        if (editor.fieldIsReadonly(field.id)) {
             base.classes("disabled");
         }
 

@@ -1,4 +1,4 @@
-import {signal} from "https://fjs.targoninc.com/f.js";
+import {signal, store} from "https://fjs.targoninc.com/f.js";
 import {ValueTypes} from "./value-types.mjs";
 import {EditorNode} from "./editor-node.mjs";
 import {InputField} from "./input-field.mjs";
@@ -7,6 +7,7 @@ import {DefaultEditorSettings} from "./default-editor-settings.mjs";
 import {GlobalSection} from "./global-section.mjs";
 import {DefaultEditorGraphinfo} from "./default-editor-graphinfo.mjs";
 import {Api} from "./auth/api.mjs";
+import {StoreKeys} from "./enums/store-keys.mjs";
 
 export class NodeEditor {
     /**
@@ -37,13 +38,18 @@ export class NodeEditor {
         this.globals = globals;
         this.position = signal({x: 0, y: 0});
         this.zoomState = signal(1);
-        window.nodeEditor = this;
         this.settings = settings;
+        this.selectedNodes = [];
+        this.user = signal(null);
+        this.uiStates = {
+            selectedTab: signal("nodes"),
+        };
+
+        store().set(StoreKeys.nodeEditor, this);
+
         this.rerender = () => {
             console.log("rerender method is not set. Make sure your renderer is set up correctly.");
         };
-        this.selectedNodes = [];
-        this.user = signal(null);
         this.initialize();
     }
 

@@ -1,20 +1,23 @@
+import {store} from "https://fjs.targoninc.com/f.js";
+import {StoreKeys} from "./enums/store-keys.mjs";
+
 export const Keymap = {
     toggleFieldConnections: {
         keys: ["c"],
         action: () => {
-            window.nodeEditor.toggleFieldConnections();
+            store().get(StoreKeys.nodeEditor).toggleFieldConnections();
         }
     },
     toggleTheme: {
         keys: ["t"],
         action: () => {
-            window.nodeEditor.toggleTheme();
+            store().get(StoreKeys.nodeEditor).toggleTheme();
         }
     },
     toggleGrid: {
         keys: ["g"],
         action: () => {
-            window.nodeEditor.toggleGrid();
+            store().get(StoreKeys.nodeEditor).toggleGrid();
         }
     },
 }

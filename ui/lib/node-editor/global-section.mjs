@@ -1,4 +1,6 @@
 import {ValueTypes} from "./value-types.mjs";
+import {store} from "https://fjs.targoninc.com/f.js";
+import {StoreKeys} from "./enums/store-keys.mjs";
 
 export class GlobalSection {
     /**
@@ -20,7 +22,7 @@ export class GlobalSection {
             }
             this.updateInterval = setInterval(() => {
                 field.propagateValue();
-                window.nodeEditor.rerender();
+                store().get(StoreKeys.nodeEditor).rerender();
             }, 100);
         } else if (this.updateInterval) {
             clearInterval(this.updateInterval);

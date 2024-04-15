@@ -1,4 +1,4 @@
-import {create, ifjs, signal} from "https://fjs.targoninc.com/f.js";
+import {create, ifjs, signal, store} from "https://fjs.targoninc.com/f.js";
 import {Icon} from "../icons/icon.mjs";
 import {InputField} from "../input-field.mjs";
 import {ValueTypes} from "../value-types.mjs";
@@ -9,6 +9,8 @@ import {ImageProcessor} from "../image-processor.mjs";
 import {UiActions} from "./ui-actions.mjs";
 import {GenericTemplates} from "../templates/generic.templates.mjs";
 import {NodeType} from "../node-type.mjs";
+import {StoreKeys} from "../enums/store-keys.mjs";
+import {UiText} from "../enums/ui-text.mjs";
 
 export class NodeEditorDomRenderer {
     constructor(editor) {
@@ -19,6 +21,8 @@ export class NodeEditorDomRenderer {
         this.container = null;
         this.panelCollapsedState = signal(false);
         this.lastNodeClick = null;
+        this.language = store().get(StoreKeys.language) ?? "en";
+        store().set(StoreKeys.language, this.language);
     }
 
     start(container) {
@@ -160,11 +164,11 @@ export class NodeEditorDomRenderer {
     #renderUserComponent() {
         const user = this.editor.user;
         const authenticated = signal(user.value !== null);
-        const buttonText = signal(authenticated.value ? "Logout" : "Login");
+        const buttonText = signal(authenticated.value ? UiText.get("logout") : UiText.get("login"));
         const buttonIcon = signal(authenticated.value ? "logout" : "login");
         user.subscribe(u => {
             authenticated.value = u !== null;
-            buttonText.value = u !== null ? "Logout" : "Login";
+            buttonText.value = u !== null ? UiText.get("logout") : UiText.get("login");
             buttonIcon.value = u !== null ? "logout" : "login";
         });
         const error = signal(null);
@@ -180,7 +184,7 @@ export class NodeEditorDomRenderer {
                             if (authenticated.value) {
                                 authenticated.value = false;
                                 user.value = null;
-                                buttonText.value = "Login";
+                                buttonText.value = UiText.get("login");
                                 buttonIcon.value = "login";
                             } else {
                                 this.#renderLoginPopup(async () => {
@@ -194,7 +198,7 @@ export class NodeEditorDomRenderer {
                                             authenticated.value = true;
                                             user.value = res.user;
                                             this.editor.user.value = res.user;
-                                            buttonText.value = "Logout";
+                                            buttonText.value = UiText.get("logout");
                                             buttonIcon.value = "logout";
                                         }
                                     });
@@ -272,16 +276,16 @@ export class NodeEditorDomRenderer {
     }
 
     #renderEditorGlobals(collapsedState) {
-        const collapseTextState = signal(collapsedState.value ? "Pin Panel" : "Unpin panel");
+        const collapseTextState = signal(collapsedState.value ? UiText.get("pinPanel") : UiText.get("unpinPanel"));
         const collapseIconState = signal(collapsedState.value ? "transition_slide" : "transition_fade");
         const collapsedClassState = signal(collapsedState.value ? 'collapsed' : 'expanded');
         collapsedState.onUpdate = collapsed => {
             if (collapsed) {
-                collapseTextState.value = "Pin panel";
+                collapseTextState.value = UiText.get("pinPanel");
                 collapseIconState.value = "transition_slide";
                 collapsedClassState.value = 'collapsed';
             } else {
-                collapseTextState.value = "Unpin panel";
+                collapseTextState.value = UiText.get("unpinPanel");
                 collapseIconState.value = "transition_fade";
                 collapsedClassState.value = 'expanded';
             }
@@ -303,7 +307,7 @@ export class NodeEditorDomRenderer {
     }
 
     #renderGeneralSection() {
-        const uploadTextState = signal("Upload JSON");
+        const uploadTextState = signal(UiText.get("uploadJson"));
         const uploadIconState = signal("upload");
 
         return create("div")
@@ -321,14 +325,14 @@ export class NodeEditorDomRenderer {
                                 });
                             })
                             .build(),
-                        GenericTemplates.infoPill(this.editor.graphInfo.public ? "Public" : "Private",
+                        GenericTemplates.infoPill(this.editor.graphInfo.public ? UiText.get("public") : UiText.get("private"),
                             this.editor.graphInfo.public ? "lock_open" : "lock",
-                            "This graph is only visible to you")
+                            UiText.get("graphOnlyVisibleToYou")),
                     ).build(),
                 create("div")
                     .classes("flex")
                     .children(
-                        GenericTemplates.button("Download JSON", () => {
+                        GenericTemplates.button(UiText.get("downloadJson"), () => {
                             const a = document.createElement('a');
                             a.href = URL.createObjectURL(new Blob([JSON.stringify(this.editor)], {type: 'application/json'}));
                             const timestamp = new Date().toISOString().replace(/:/g, '-');
@@ -337,25 +341,25 @@ export class NodeEditorDomRenderer {
                         }, "download"),
                         GenericTemplates.button(uploadTextState, () => {
                             uploadIconState.value = "input";
-                            uploadTextState.value = "Selecting...";
+                            uploadTextState.value = UiText.get("selecting") + "...";
                             const input = document.createElement('input');
                             input.type = 'file';
                             input.accept = '.json';
                             input.onchange = () => {
                                 if (!input.files[0]) {
                                     uploadIconState.value = "upload";
-                                    uploadTextState.value = "Upload JSON";
+                                    uploadTextState.value = UiText.get("uploadJson");
                                     return;
                                 }
                                 uploadIconState.value = "cached";
-                                uploadTextState.value = "Loading...";
+                                uploadTextState.value = UiText.get("loading") + "...";
                                 const reader = new FileReader();
                                 reader.onload = () => {
                                     const json = JSON.parse(reader.result);
                                     this.editor.loadFromJSON(json);
                                     this.#renderFrame(true);
                                     uploadIconState.value = "upload";
-                                    uploadTextState.value = "Upload JSON";
+                                    uploadTextState.value = UiText.get("uploadJson");
                                 };
                                 reader.readAsText(input.files[0]);
                             };
@@ -364,11 +368,11 @@ export class NodeEditorDomRenderer {
                     ).build(),
                 this.#tabSwitcher([
                     {
-                        name: "Globals",
+                        name: UiText.get("globals"),
                         content: this.#renderGlobalsSection()
                     },
                     {
-                        name: "Node types",
+                        name: UiText.get("nodeTypes"),
                         content: this.#renderNodeTypesSection()
                     }
                 ])
@@ -379,8 +383,8 @@ export class NodeEditorDomRenderer {
         return create("div")
             .classes("flex-v")
             .children(
-                GenericTemplates.button("Add node type", () => {
-                    GenericTemplates.inputPopup("Node type name", "", name => {
+                GenericTemplates.button(UiText.get("addNodeType"), () => {
+                    GenericTemplates.inputPopup(UiText.get("nodeTypeName"), "", name => {
                         this.editor.addNodeType(new NodeType(name));
                         this.#renderFrame(true);
                     });
@@ -392,7 +396,7 @@ export class NodeEditorDomRenderer {
                             create("h1")
                                 .text(nodeType.name)
                                 .build(),
-                            GenericTemplates.button("Remove node type", () => {
+                            GenericTemplates.button(UiText.get("removeNodeType"), () => {
                                 this.editor.removeNodeTypeByName(nodeType.name);
                                 this.#renderFrame(true);
                             }, "delete"),
@@ -405,8 +409,8 @@ export class NodeEditorDomRenderer {
         return create("div")
             .classes("flex-v")
             .children(
-                GenericTemplates.button("Add global section", () => {
-                    GenericTemplates.inputPopup("Global name", "", name => {
+                GenericTemplates.button(UiText.get("addGlobalSection"), () => {
+                    GenericTemplates.inputPopup(UiText.get("globalName"), "", name => {
                         this.editor.addGlobalSection(name);
                         this.#renderFrame(true);
                     });
@@ -455,18 +459,18 @@ export class NodeEditorDomRenderer {
             .children(
                 create("div")
                     .classes("input-popup-title")
-                    .text("Login")
+                    .text(UiText.get("login"))
                     .build(),
                 create("input")
                     .classes("input-popup-input")
-                    .placeholder("Username")
+                    .placeholder(UiText.get("username"))
                     .id("username-input")
                     .attributes("autofocus", "true")
                     .build(),
                 create("input")
                     .classes("input-popup-input")
                     .id("event-input")
-                    .placeholder("Password")
+                    .placeholder(UiText.get("password"))
                     .type("password")
                     .build(),
                 GenericTemplates.popupButtons(onLogin)
@@ -508,7 +512,7 @@ export class NodeEditorDomRenderer {
                                         global.set(field.name, newValue);
                                         this.#renderFrame(true);
                                     }),
-                                    GenericTemplates.button("Remove field", () => {
+                                    GenericTemplates.button(UiText.get("removeField"), () => {
                                         global.removeFieldByName(field.name);
                                         this.#renderFrame(true);
                                     }, "delete"),
@@ -522,9 +526,9 @@ export class NodeEditorDomRenderer {
         return create("div")
             .classes("global-section-settings", "flex")
             .children(
-                GenericTemplates.button("Add field", () => {
-                    GenericTemplates.inputPopup("Field name", "", name => {
-                        GenericTemplates.dropdownPopup("Field value", Object.values(ValueTypes), type => {
+                GenericTemplates.button(UiText.get("addField"), () => {
+                    GenericTemplates.inputPopup(UiText.get("fieldName"), "", name => {
+                        GenericTemplates.dropdownPopup(UiText.get("fieldValue"), Object.values(ValueTypes), type => {
                             const field = new InputField(name, type, null);
                             global.addField(field);
                             this.#renderFrame(true);
@@ -532,7 +536,7 @@ export class NodeEditorDomRenderer {
                         });
                     });
                 }, "add"),
-                GenericTemplates.button("Remove section", () => {
+                GenericTemplates.button(UiText.get("removeSection"), () => {
                     this.editor.removeGlobalSection(global.name);
                     this.#renderFrame();
                 }, "delete"),
@@ -552,10 +556,10 @@ export class NodeEditorDomRenderer {
             .classes("menu", classState)
             .styles("left", xState, "top", yState)
             .children(
-                this.#renderMenuItem("Add node", () => {
+                this.#renderMenuItem(UiText.get("addNode"), () => {
                     this.editor.addNodeFromMenu(positionState, editorSize);
                 }, "addNode"),
-                ifjs(hasSelectedNodes, this.#renderMenuItem("Remove selected", () => {
+                ifjs(hasSelectedNodes, this.#renderMenuItem(UiText.get("removeSelected"), () => {
                     this.editor.removeSelectedNodes();
                 }, "delete"))
             ).build();
@@ -633,11 +637,11 @@ export class NodeEditorDomRenderer {
     #handleNodeClick(e, node) {
         if (this.lastNodeClick && this.lastNodeClick.node === node && Date.now() - this.lastNodeClick.time < 300) {
             this.editor.unselectAllExcept();
-            window.nodeEditor.rerender();
+            this.editor.rerender();
             node.startConnecting(e);
         } else {
             node.toggleSelection(e);
-            window.nodeEditor.rerender();
+            this.editor.rerender();
         }
         this.lastNodeClick = {
             node: node,
@@ -737,15 +741,15 @@ export class NodeEditorDomRenderer {
             .classes("menu", classState)
             .styles("left", xState, "top", yState)
             .children(
-                this.#renderMenuItem("Remove node", () => {
-                    window.nodeEditor.removeNodeById(node.id);
+                this.#renderMenuItem(UiText.get("removeNode"), () => {
+                    this.editor.removeNodeById(node.id);
                     this.#renderFrame(true);
                 }, "delete"),
-                this.#renderMenuItem("Duplicate node", () => {
-                    window.nodeEditor.duplicateNode(node);
+                this.#renderMenuItem(UiText.get("duplicateNode"), () => {
+                    this.editor.duplicateNode(node);
                     this.#renderFrame(true);
                 }, "copy"),
-                this.#renderMenuItem("Connect", e => {
+                this.#renderMenuItem(UiText.get("connect"), e => {
                     node.startConnecting(e);
                     classState.value = 'hidden';
                 }, "link"),
@@ -773,14 +777,14 @@ export class NodeEditorDomRenderer {
                     .classes("node-title")
                     .text(node.name)
                     .build(),
-                small ? null : GenericTemplates.select(window.nodeEditor.nodeTypes.map(t => {
+                small ? null : GenericTemplates.select(this.editor.nodeTypes.map(t => {
                     return {
                         value: t.name,
                         text: t.name,
                         selected: t.name === node.name
                     };
                 }), e => {
-                    const type = window.nodeEditor.nodeTypes.find(type => type.name === e.target.value);
+                    const type = this.editor.nodeTypes.find(type => type.name === e.target.value);
                     node.setType(type);
                     this.#renderFrame();
                 }),

@@ -2,7 +2,8 @@ import {EditorConnection} from "./editor-connection.mjs";
 import {IdGenerator} from "./id-generator.mjs";
 import {InputField} from "./input-field.mjs";
 import {ValueTypes} from "./value-types.mjs";
-import {signal} from "https://fjs.targoninc.com/f.js";
+import {signal, store} from "https://fjs.targoninc.com/f.js";
+import {StoreKeys} from "./enums/store-keys.mjs";
 
 export class EditorNode {
     /**
@@ -59,7 +60,7 @@ export class EditorNode {
             }
             this.updateInterval = setInterval(() => {
                 field.propagateValue();
-                window.nodeEditor.rerender();
+                store().get(StoreKeys.nodeEditor).rerender();
             }, 100);
         } else if (this.updateInterval) {
             clearInterval(this.updateInterval);
@@ -93,7 +94,7 @@ export class EditorNode {
     }
 
     canConnectTo(id) {
-        return !this.connections.find(connection => connection.to === id) && this.isAllowedToConnectTo(window.nodeEditor.getNodeById(id).type.name);
+        return !this.connections.find(connection => connection.to === id) && this.isAllowedToConnectTo(store().get(StoreKeys.nodeEditor).getNodeById(id).type.name);
     }
 
     addConnection(connection) {
@@ -164,7 +165,7 @@ export class EditorNode {
                 y: newY - window.innerHeight / (2 * zoomState.value)
             };
             this.positionState.value = this.position;
-            window.nodeEditor.rerender();
+            store().get(StoreKeys.nodeEditor).rerender();
         };
         const up = () => {
             document.removeEventListener("mousemove", move);
@@ -215,35 +216,35 @@ export class EditorNode {
     }
 
     toggleSelection(e) {
-        if (window.nodeEditor.nodeIsSelected(this.id)) {
+        if (store().get(StoreKeys.nodeEditor).nodeIsSelected(this.id)) {
             if (e.ctrlKey) {
-                window.nodeEditor.removeSelectedNode(this.id);
+                store().get(StoreKeys.nodeEditor).removeSelectedNode(this.id);
             } else {
-                window.nodeEditor.unselectAllExcept(this.id);
+                store().get(StoreKeys.nodeEditor).unselectAllExcept(this.id);
             }
         } else {
             if (e.ctrlKey) {
-                window.nodeEditor.addSelectedNode(this.id);
+                store().get(StoreKeys.nodeEditor).addSelectedNode(this.id);
             } else {
-                window.nodeEditor.unselectAllExcept(this.id);
+                store().get(StoreKeys.nodeEditor).unselectAllExcept(this.id);
             }
         }
     }
 
     startConnecting(e) {
         e.stopPropagation();
-        window.nodeEditor.startNodeConnection(this.id);
+        store().get(StoreKeys.nodeEditor).startNodeConnection(this.id);
         document.addEventListener("click", e => {
             if (e.target.classList.contains("node")) {
-                window.nodeEditor.finishNodeConnection(this.id, e.target.id);
+                store().get(StoreKeys.nodeEditor).finishNodeConnection(this.id, e.target.id);
                 return;
             }
 
             const closestNode = e.target.closest(".node");
             if (closestNode) {
-                window.nodeEditor.finishNodeConnection(this.id, closestNode.id);
+                store().get(StoreKeys.nodeEditor).finishNodeConnection(this.id, closestNode.id);
             } else {
-                window.nodeEditor.finishNodeConnection(this.id, null);
+                store().get(StoreKeys.nodeEditor).finishNodeConnection(this.id, null);
             }
         }, {once: true});
     }

@@ -1,7 +1,8 @@
 import {ValueTypes} from "./value-types.mjs";
-import {signal} from "https://fjs.targoninc.com/f.js";
+import {signal, store} from "https://fjs.targoninc.com/f.js";
 import {IdGenerator} from "./id-generator.mjs";
 import {EditorConnection} from "./editor-connection.mjs";
+import {StoreKeys} from "./enums/store-keys.mjs";
 
 export class InputField {
     constructor(name, type, defaultValue, required = false, shown = true, connections = [], value = null, id = null) {
@@ -86,21 +87,22 @@ export class InputField {
 
     startConnecting(e) {
         e.stopPropagation();
-        window.nodeEditor.startFieldConnection(this);
+        const editor = store().get(StoreKeys.nodeEditor);
+        editor.startFieldConnection(this);
         document.addEventListener("click", e => {
             if (!e.target.classList.contains("node-field-input")) {
-                window.nodeEditor.finishFieldConnection(this.id, null);
+                editor.finishFieldConnection(this.id, null);
                 return;
             }
 
-            window.nodeEditor.finishFieldConnection(this.id, e.target.id);
+            editor.finishFieldConnection(this.id, e.target.id);
             e.target.blur();
-            window.nodeEditor.rerender();
+            editor.rerender();
         }, {once: true});
     }
 
     canConnectTo(id) {
-        if (window.nodeEditor.fieldHasIncomingConnection(id)) {
+        if (store().get(StoreKeys.nodeEditor).fieldHasIncomingConnection(id)) {
             return false;
         }
         return !this.connections.find(connection => connection.to === id);
@@ -109,7 +111,7 @@ export class InputField {
     propagateValue() {
         let deleteQueue = [];
         for (const connection of this.connections) {
-            const connectedField = window.nodeEditor.getFieldById(connection.to);
+            const connectedField = store().get(StoreKeys.nodeEditor).getFieldById(connection.to);
             if (!connectedField) {
                 deleteQueue.push(connection);
                 continue;
