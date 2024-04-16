@@ -330,7 +330,7 @@ export class NodeEditorDomRenderer {
     }
 
     #renderGeneralSection() {
-        const uploadTextState = signal(UiText.get("uploadJson"));
+        const uploadTextState = signal(UiText.get("upload"));
         const uploadIconState = signal("upload");
 
         return create("div")
@@ -355,10 +355,10 @@ export class NodeEditorDomRenderer {
                 create("div")
                     .classes("flex")
                     .children(
-                        GenericTemplates.button(UiText.get("copyJson"), () => {
+                        GenericTemplates.button(UiText.get("copy"), () => {
                             UiActions.copy(this.editor.stringify());
                         }, "content_copy"),
-                        GenericTemplates.button(UiText.get("downloadJson"), () => {
+                        GenericTemplates.button(UiText.get("download"), () => {
                             UiActions.download(this.editor.stringify(), `graph-${this.editor.graphInfo.name}.json`);
                         }, "download"),
                         GenericTemplates.button(uploadTextState, () => this.uploadJsonHandler(uploadIconState, uploadTextState), uploadIconState),
@@ -387,7 +387,7 @@ export class NodeEditorDomRenderer {
         input.onchange = () => {
             if (!input.files[0]) {
                 uploadIconState.value = "upload";
-                uploadTextState.value = UiText.get("uploadJson");
+                uploadTextState.value = UiText.get("upload");
                 return;
             }
             uploadIconState.value = "cached";
@@ -398,7 +398,7 @@ export class NodeEditorDomRenderer {
                 this.editor.loadFromJSON(json);
                 this.editor.rerender(true);
                 uploadIconState.value = "upload";
-                uploadTextState.value = UiText.get("uploadJson");
+                uploadTextState.value = UiText.get("upload");
             };
             reader.readAsText(input.files[0]);
         };
