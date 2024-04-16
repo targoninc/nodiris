@@ -76,4 +76,14 @@ export class AuthActions {
         }
         res.send({error: "Not authenticated"});
     }
+
+    static authenticationEnabled = (isEnabled) => {
+        return (req, res) => {
+            if (isEnabled) {
+                res.sendStatus(200);
+            } else {
+                res.sendStatus(418);
+            }
+        }
+    }
 }

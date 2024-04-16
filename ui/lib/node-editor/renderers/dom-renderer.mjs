@@ -1,4 +1,4 @@
-import {create, ifjs, signal, store} from "https://fjs.targoninc.com/f.js";
+import {create, ifjs, nullElement, signal, store} from "https://fjs.targoninc.com/f.js";
 import {Icon} from "../icons/icon.mjs";
 import {InputField} from "../input-field.mjs";
 import {ValueTypes} from "../value-types.mjs";
@@ -188,22 +188,7 @@ export class NodeEditorDomRenderer {
                                 buttonText.value = UiText.get("login");
                                 buttonIcon.value = "login";
                             } else {
-                                this.#renderLoginPopup(async () => {
-                                    const popupInputs = document.querySelectorAll(".input-popup-input");
-                                    const username = popupInputs[0].value;
-                                    const password = popupInputs[1].value;
-                                    Auth.authorize(username, password).then(res => {
-                                        if (res.error) {
-                                            error.value = res.error;
-                                        } else {
-                                            authenticated.value = true;
-                                            user.value = res.user;
-                                            this.editor.user.value = res.user;
-                                            buttonText.value = UiText.get("logout");
-                                            buttonIcon.value = "logout";
-                                        }
-                                    });
-                                });
+                                this.#renderLoginPopup(this.handleLoginRequest(error, authenticated, user, buttonText, buttonIcon));
                             }
                         }, buttonIcon),
                     ).build(),
@@ -212,6 +197,25 @@ export class NodeEditorDomRenderer {
                     .text(error)
                     .build())
             ).build();
+    }
+
+    handleLoginRequest(error, authenticated, user, buttonText, buttonIcon) {
+        return async () => {
+            const popupInputs = document.querySelectorAll(".input-popup-input");
+            const username = popupInputs[0].value;
+            const password = popupInputs[1].value;
+            Auth.authorize(username, password).then(res => {
+                if (res.error) {
+                    error.value = res.error;
+                } else {
+                    authenticated.value = true;
+                    user.value = res.user;
+                    this.editor.user.value = res.user;
+                    buttonText.value = UiText.get("logout");
+                    buttonIcon.value = "logout";
+                }
+            });
+        };
     }
 
     #renderLoggedInComponent(user) {
@@ -298,7 +302,8 @@ export class NodeEditorDomRenderer {
                 create("div")
                     .classes("flex", "spaced")
                     .children(
-                        this.#renderUserComponent(),
+                        ifjs(this.editor.authenticationEnabled, this.#renderUserComponent()),
+                        ifjs(this.editor.authenticationEnabled, create("div").build(), true),
                         GenericTemplates.button(collapseTextState, () => {
                             collapsedState.value = !collapsedState.value;
                         }, collapseIconState),

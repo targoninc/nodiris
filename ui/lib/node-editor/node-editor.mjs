@@ -42,6 +42,7 @@ export class NodeEditor {
         this.settings = settings;
         this.selectedNodes = [];
         this.userGraphs = [];
+        this.authenticationEnabled = signal(false);
         this.user = signal(null);
         this.uiStates = {
             selectedTab: signal(UiText.get("globals")),
@@ -58,7 +59,16 @@ export class NodeEditor {
 
     initialize() {
         this.setTheme(this.settings.theme);
-        this.loadUser();
+        this.loadAuthentication();
+    }
+
+    loadAuthentication() {
+        Api.authenticationEnabled().then(enabled => {
+            this.authenticationEnabled.value = enabled;
+            if (enabled) {
+                this.loadUser();
+            }
+        });
     }
 
     loadUser() {

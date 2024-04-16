@@ -13,6 +13,9 @@ export class Features {
         const neededEnvVarsForAuth = ["SESSION_SECRET", "MYSQL_URL", "MYSQL_USER", "MYSQL_PASSWORD"];
         const missingEnvVars = neededEnvVarsForAuth.filter((envVar) => !process.env[envVar]);
 
+        app.use(express.json());
+        app.post("/api/authenticationEnabled", AuthActions.authenticationEnabled(missingEnvVars.length === 0));
+
         if (missingEnvVars.length > 0) {
             CLI.warn(`Disabling authentication features because of missing environment variables: ${missingEnvVars.join(", ")}`);
             return;
@@ -25,8 +28,6 @@ export class Features {
         }));
         app.use(passport.initialize());
         app.use(passport.session({}));
-
-        app.use(express.json());
 
         const db_url = process.env.MYSQL_URL.toString();
         CLI.info(`Connecting to database @ ${db_url}...`);

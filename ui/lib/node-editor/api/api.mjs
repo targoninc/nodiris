@@ -1,4 +1,15 @@
 export class Api {
+    static async authenticationEnabled() {
+        const res = await fetch(`/api/authenticationEnabled`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        });
+        return res.status === 200;
+    }
+
     static async authorize(username, password) {
         const res = await fetch(`/api/authorize`, {
             method: 'POST',
