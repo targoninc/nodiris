@@ -37,6 +37,8 @@ export const languageTextMap = {
         duplicateNode: "Duplicate node",
         connect: "Connect",
         graphName: "Graph name",
+        copyJson: "Copy JSON",
+        copiedToClipboard: "Copied to clipboard",
     },
     de: {
         login: "Anmelden",
@@ -73,6 +75,8 @@ export const languageTextMap = {
         duplicateNode: "Knoten duplizieren",
         connect: "Verbinden",
         graphName: "Graphname",
+        copyJson: "JSON kopieren",
+        copiedToClipboard: "In die Zwichenablage kopiert",
     }
 }
 

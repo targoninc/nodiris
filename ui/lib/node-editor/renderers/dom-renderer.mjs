@@ -135,6 +135,9 @@ export class NodeEditorDomRenderer {
                     .build(),
                 this.#renderEditorGlobals(collapsedState),
                 this.#renderEditorMenu(menuPositionState, menuClassState, editorSize),
+                create("div")
+                    .classes("toast-container")
+                    .build()
             ).build();
     }
 
@@ -352,7 +355,12 @@ export class NodeEditorDomRenderer {
                 create("div")
                     .classes("flex")
                     .children(
-                        GenericTemplates.button(UiText.get("downloadJson"), () => this.downloadJsonHandler(), "download"),
+                        GenericTemplates.button(UiText.get("copyJson"), () => {
+                            UiActions.copy(this.editor.stringify());
+                        }, "content_copy"),
+                        GenericTemplates.button(UiText.get("downloadJson"), () => {
+                            UiActions.download(this.editor.stringify(), `graph-${this.editor.graphInfo.name}.json`);
+                        }, "download"),
                         GenericTemplates.button(uploadTextState, () => this.uploadJsonHandler(uploadIconState, uploadTextState), uploadIconState),
                     ).build(),
                 this.#tabSwitcher([
@@ -368,14 +376,6 @@ export class NodeEditorDomRenderer {
                     }
                 ])
             ).build();
-    }
-
-    downloadJsonHandler() {
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([JSON.stringify(this.editor)], {type: 'application/json'}));
-        const timestamp = new Date().toISOString().replace(/:/g, '-');
-        a.download = 'node-editor-' + timestamp + '.json';
-        a.click();
     }
 
     uploadJsonHandler(uploadIconState, uploadTextState) {

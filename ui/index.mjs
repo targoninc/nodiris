@@ -54,6 +54,6 @@ renderer.start(document.getElementById("editor"));
 
 /*
 setInterval(() => {
-    sessionStorage.setItem("editor", JSON.stringify(editor));
+    sessionStorage.setItem("editor", editor.stringify());
 }, 100);
  */

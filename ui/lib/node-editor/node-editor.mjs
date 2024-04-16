@@ -34,7 +34,7 @@ export class NodeEditor {
      * @param settings {DefaultEditorSettings | Object}
      */
     constructor(graphInfo = {}, types = [], nodes = [], globals = [], settings = DefaultEditorSettings) {
-        this.graphInfo = graphInfo;
+        this.graphInfo = graphInfo ?? DefaultEditorGraphinfo;
         this.nodeTypes = types;
         this.nodes = nodes;
         this.globals = globals;
@@ -59,7 +59,12 @@ export class NodeEditor {
     }
 
     stringify() {
-        return CustomStringifier.stringify(this);
+        const base = JSON.parse(CustomStringifier.stringify(this));
+        delete base["user"];
+        delete base["authenticationEnabled"];
+        delete base["userGraphs"];
+        delete base["selectedNodes"];
+        return JSON.stringify(base);
     }
 
     initialize() {
