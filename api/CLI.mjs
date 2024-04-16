@@ -42,4 +42,9 @@ export class CLI {
         process.stdout.cursorTo(0);
         process.stdout.write(text);
     }
+
+    static clear() {
+        process.stdout.clearLine();
+        process.stdout.cursorTo(0);
+    }
 }

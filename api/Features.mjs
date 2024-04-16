@@ -30,9 +30,10 @@ export class Features {
         app.use(passport.session({}));
 
         const db_url = process.env.MYSQL_URL.toString();
-        CLI.info(`Connecting to database @ ${db_url}...`);
+        CLI.rewrite(`Connecting to database @ ${db_url}...`);
         const db = new DB(process.env.MYSQL_URL);
         await db.connect();
+        CLI.rewrite("Connected to database.");
 
         passport.use(PassportStrategy(db));
         passport.serializeUser(PassportSerializeUser());
