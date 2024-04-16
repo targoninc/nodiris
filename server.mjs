@@ -12,7 +12,6 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 await Features.enableAuthentication(app);
-CLI.clear();
 
 app.use(express.static(path.join(__dirname, '/ui')));
 

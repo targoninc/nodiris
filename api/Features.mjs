@@ -48,5 +48,7 @@ export class Features {
         app.get("/api/getGraph", AuthActions.checkAuthenticated, GraphActions.getGraph(db));
         app.post("/api/saveGraph", AuthActions.checkAuthenticated, GraphActions.saveGraph(db));
         app.post("/api/deleteGraph", AuthActions.checkAuthenticated, GraphActions.deleteGraph(db));
+
+        CLI.clear();
     }
 }
