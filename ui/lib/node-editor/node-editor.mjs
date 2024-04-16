@@ -45,10 +45,10 @@ export class NodeEditor {
         this.authenticationEnabled = signal(false);
         this.user = signal(null);
         this.uiStates = {
-            selectedTab: signal(UiText.get("globals")),
+            selectedTab: signal("globals"),
         };
 
-        store().set(StoreKeys.tabName$, this.uiStates.selectedTab);
+        store().set(StoreKeys.tabKey$, this.uiStates.selectedTab);
         store().set(StoreKeys.nodeEditor, this);
 
         this.rerender = () => {

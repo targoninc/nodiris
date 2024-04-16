@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node server.mjs"
+    "start": "bun server.mjs --watch"
   },
   "author": "",
   "license": "ISC",

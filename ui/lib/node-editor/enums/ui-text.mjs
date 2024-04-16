@@ -1,5 +1,5 @@
 import {StoreKeys} from "./store-keys.mjs";
-import {store} from "https://fjs.targoninc.com/f.js";
+import {signal, store} from "https://fjs.targoninc.com/f.js";
 
 export const languageTextMap = {
     en: {
@@ -78,7 +78,7 @@ export const languageTextMap = {
 
 export class UiText {
     static get(key) {
-        const lang = store().get(StoreKeys.language) ?? "en";
+        const lang = store().get(StoreKeys.language$)?.value ?? "en";
         return languageTextMap[lang][key] ?? (() => {
             UiText.warnMissing(lang, key);
             return key;

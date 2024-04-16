@@ -22,8 +22,10 @@ export class NodeEditorDomRenderer {
         this.container = null;
         this.lastNodeClick = null;
         this.panelCollapsedState = signal(false);
-        this.language = store().get(StoreKeys.language) ?? "en";
-        store().set(StoreKeys.language, this.language);
+        this.language = store().get(StoreKeys.language$)?.value ?? "en";
+        if (!store().get(StoreKeys.language$)) {
+            store().set(StoreKeys.language$, signal(this.language));
+        }
     }
 
     start(container) {
@@ -304,11 +306,23 @@ export class NodeEditorDomRenderer {
                     .children(
                         ifjs(this.editor.authenticationEnabled, this.#renderUserComponent()),
                         ifjs(this.editor.authenticationEnabled, create("div").build(), true),
-                        GenericTemplates.button(collapseTextState, () => {
-                            collapsedState.value = !collapsedState.value;
-                        }, collapseIconState),
+                        create("div")
+                            .classes("flex")
+                            .children(
+                                GenericTemplates.select([
+                                    { value: "en", text: "English", selected: this.language === "en" },
+                                    { value: "de", text: "Deutsch", selected: this.language === "de" },
+                                ], e => {
+                                    this.language = e.target.value;
+                                    store().get(StoreKeys.language$).value = this.language;
+                                    this.editor.rerender();
+                                }),
+                                GenericTemplates.button(collapseTextState, () => {
+                                    collapsedState.value = !collapsedState.value;
+                                }, collapseIconState),
+                            ).build(),
                     ).build(),
-                this.#renderGeneralSection(),
+                this.#renderGeneralSection()
             ).build();
     }
 
@@ -344,10 +358,12 @@ export class NodeEditorDomRenderer {
                 this.#tabSwitcher([
                     {
                         name: UiText.get("globals"),
+                        key: "globals",
                         content: this.#renderGlobalsSection()
                     },
                     {
                         name: UiText.get("nodeTypes"),
+                        key: "nodeTypes",
                         content: this.#renderNodeTypesSection()
                     }
                 ])
@@ -464,18 +480,18 @@ export class NodeEditorDomRenderer {
     }
 
     #tabSwitcher(tabs) {
-        const tabState = store().get(StoreKeys.tabName$);
-        const tabContent = signal(tabs.find(tab => tab.name === tabState.value).content);
+        const tabState = store().get(StoreKeys.tabKey$);
+        const tabContent = signal(tabs.find(tab => tab.key === tabState.value).content);
         const tabButtons = tabs.map(tab => {
-            const buttonActive = signal(tabState.value === tab.name ? "active" : "_");
-            tabState.subscribe(tabName => {
-                buttonActive.value = tabName === tab.name ? "active" : "_";
+            const buttonActive = signal(tabState.value === tab.key ? "active" : "_");
+            tabState.subscribe(tabKey => {
+                buttonActive.value = tabKey === tab.key ? "active" : "_";
             });
 
             return create("button")
                 .classes("node-editor-tab-button", buttonActive)
                 .onclick(() => {
-                    tabState.value = tab.name;
+                    tabState.value = tab.key;
                     tabContent.value = tab.content;
                 })
                 .text(tab.name)
