@@ -5,7 +5,7 @@ import {ValueTypes} from "../value-types.mjs";
 import {Keymap} from "../keymap.mjs";
 import {Auth} from "../api/auth.mjs";
 import {Api} from "../api/api.mjs";
-import {ImageProcessor} from "../image-processor.mjs";
+import {ImageProcessor} from "../utilities/image-processor.mjs";
 import {UiActions} from "./ui-actions.mjs";
 import {GenericTemplates} from "../templates/generic.templates.mjs";
 import {NodeType} from "../node-type.mjs";

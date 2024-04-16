@@ -1,6 +1,6 @@
 import {ValueTypes} from "./value-types.mjs";
 import {signal, store} from "https://fjs.targoninc.com/f.js";
-import {IdGenerator} from "./id-generator.mjs";
+import {IdGenerator} from "./utilities/id-generator.mjs";
 import {EditorConnection} from "./editor-connection.mjs";
 import {StoreKeys} from "./enums/store-keys.mjs";
 

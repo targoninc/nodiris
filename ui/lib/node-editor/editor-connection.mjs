@@ -1,4 +1,4 @@
-import {IdGenerator} from "./id-generator.mjs";
+import {IdGenerator} from "./utilities/id-generator.mjs";
 
 export class EditorConnection {
     constructor(from, to, id = null) {

@@ -9,6 +9,7 @@ import {DefaultEditorGraphinfo} from "./default-editor-graphinfo.mjs";
 import {Api} from "./api/api.mjs";
 import {StoreKeys} from "./enums/store-keys.mjs";
 import {UiText} from "./enums/ui-text.mjs";
+import {CustomStringifier} from "./utilities/custom-stringifier.mjs";
 
 export class NodeEditor {
     /**
@@ -55,6 +56,10 @@ export class NodeEditor {
             console.log("rerender method is not set. Make sure your renderer is set up correctly.");
         };
         this.initialize();
+    }
+
+    stringify() {
+        return CustomStringifier.stringify(this);
     }
 
     initialize() {
