@@ -1,4 +1,5 @@
 import sharp from 'sharp';
+import {CLI} from "./CLI.mjs";
 
 export class UserActions {
     static saveAvatar(db) {
@@ -22,8 +23,10 @@ export class UserActions {
                 .jpeg({quality: 50})
                 .toBuffer();
             const newAvatar = processedImage.toString('base64');
-            console.log(`Saving avatar for user ${id}`);
+
+            CLI.debug(`Saving avatar for user ${id}`);
             await db.saveAvatar(id, newAvatar);
+
             res.sendStatus(200);
         }
     }

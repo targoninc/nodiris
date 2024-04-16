@@ -70,4 +70,21 @@ export class DB {
         const firstRow = rows[0];
         return firstRow ? firstRow.avatar_data : null;
     }
+
+    async saveGraph(userId, graph) {
+        await this.query("INSERT INTO nodeeditor.graphs (user_id, graph_json) VALUES (?, ?)", [userId, graph]);
+    }
+
+    async getUserGraphs(userId) {
+        return await this.query("SELECT * FROM nodeeditor.graphs WHERE user_id = ?", [userId]);
+    }
+
+    async getGraph(userId, graphId) {
+        const rows = await this.query("SELECT * FROM nodeeditor.graphs WHERE user_id = ? AND id = ?", [userId, graphId]);
+        return rows ? rows[0] : null;
+    }
+
+    async deleteGraph(userId, graphId) {
+        await this.query("DELETE FROM nodeeditor.graphs WHERE user_id = ? AND id = ?", [userId, graphId]);
+    }
 }
