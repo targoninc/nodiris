@@ -35,7 +35,7 @@ export class GraphActions {
             CLI.debug(`Getting graphs for user ${userId}`);
             const graphs = await db.getUserGraphs(userId);
 
-            res.send({graphs: JSON.stringify(graphs)});
+            res.send({ graphs });
         }
     }
 

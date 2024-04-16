@@ -6,7 +6,7 @@ import {NodeType} from "./node-type.mjs";
 import {DefaultEditorSettings} from "./default-editor-settings.mjs";
 import {GlobalSection} from "./global-section.mjs";
 import {DefaultEditorGraphinfo} from "./default-editor-graphinfo.mjs";
-import {Api} from "./auth/api.mjs";
+import {Api} from "./api/api.mjs";
 import {StoreKeys} from "./enums/store-keys.mjs";
 import {UiText} from "./enums/ui-text.mjs";
 
@@ -41,6 +41,7 @@ export class NodeEditor {
         this.zoomState = signal(1);
         this.settings = settings;
         this.selectedNodes = [];
+        this.userGraphs = [];
         this.user = signal(null);
         this.uiStates = {
             selectedTab: signal(UiText.get("globals")),
@@ -65,9 +66,17 @@ export class NodeEditor {
             if (res.user) {
                 console.log("User is already authorized");
                 this.user.value = res.user;
+                this.loadUserGraphs();
             } else {
                 console.log("User is not authorized");
             }
+        });
+    }
+
+    loadUserGraphs() {
+        Api.getUserGraphs().then(res => {
+            console.log("User graphs", res.graphs);
+            this.userGraphs = res.graphs;
         });
     }
 

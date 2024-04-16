@@ -63,4 +63,41 @@ export class Api {
         }
         return await res.json();
     }
+
+    static async saveGraph(json) {
+        const res = await fetch(`/api/saveGraph`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                graph: json
+            })
+        });
+        if (res.status !== 200) {
+            return {
+                error: await res.text()
+            };
+        }
+        return await res.json();
+    }
+
+    static async getUserGraphs() {
+        const res = await fetch(`/api/getUserGraphs`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+        });
+        if (res.status !== 200) {
+            return {
+                error: await res.text()
+            };
+        }
+        return await res.json();
+    }
 }

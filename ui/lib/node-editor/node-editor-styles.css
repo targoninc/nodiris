@@ -399,7 +399,7 @@ h2 {
     display: flex;
     overflow: auto;
     margin-bottom: var(--editor-padding);
-    box-shadow: 0 15px 10px -5px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 5px 10px -5px rgba(0, 0, 0, 0.5);
 }
 
 .node-editor-tab-button {

@@ -6,6 +6,7 @@ import {AuthActions} from "./AuthActions.mjs";
 import {UserActions} from "./UserActions.mjs";
 import {CLI} from "./CLI.mjs";
 import {GraphActions} from "./GraphActions.mjs";
+import express from "express";
 
 export class Features {
     static async enableAuthentication(app) {
@@ -25,6 +26,8 @@ export class Features {
         app.use(passport.initialize());
         app.use(passport.session({}));
 
+        app.use(express.json());
+
         const db_url = process.env.MYSQL_URL.toString();
         CLI.info(`Connecting to database @ ${db_url}...`);
         const db = new DB(process.env.MYSQL_URL);
@@ -39,9 +42,9 @@ export class Features {
         app.get("/api/isAuthorized", AuthActions.isAuthorized(db));
         app.post("/api/saveAvatar", AuthActions.checkAuthenticated, UserActions.saveAvatar(db));
 
+        app.get("/api/getUserGraphs", AuthActions.checkAuthenticated, GraphActions.getUserGraphs(db));
+        app.get("/api/getGraph", AuthActions.checkAuthenticated, GraphActions.getGraph(db));
         app.post("/api/saveGraph", AuthActions.checkAuthenticated, GraphActions.saveGraph(db));
-        app.post("/api/getUserGraphs", AuthActions.checkAuthenticated, GraphActions.getUserGraphs(db));
-        app.post("/api/getGraph", AuthActions.checkAuthenticated, GraphActions.getGraph(db));
         app.post("/api/deleteGraph", AuthActions.checkAuthenticated, GraphActions.deleteGraph(db));
     }
 }

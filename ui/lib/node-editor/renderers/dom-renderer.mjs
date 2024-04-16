@@ -3,8 +3,8 @@ import {Icon} from "../icons/icon.mjs";
 import {InputField} from "../input-field.mjs";
 import {ValueTypes} from "../value-types.mjs";
 import {Keymap} from "../keymap.mjs";
-import {Auth} from "../auth/auth.mjs";
-import {Api} from "../auth/api.mjs";
+import {Auth} from "../api/auth.mjs";
+import {Api} from "../api/api.mjs";
 import {ImageProcessor} from "../image-processor.mjs";
 import {UiActions} from "./ui-actions.mjs";
 import {GenericTemplates} from "../templates/generic.templates.mjs";
@@ -320,7 +320,7 @@ export class NodeEditorDomRenderer {
                         create("h1")
                             .text(this.editor.graphInfo.name)
                             .onclick(() => {
-                                GenericTemplates.inputPopup("Graph name", this.editor.graphInfo.name, name => {
+                                GenericTemplates.inputPopup(UiText.get("graphName"), this.editor.graphInfo.name, name => {
                                     this.editor.setGraphName(name);
                                     this.editor.rerender(true);
                                 });
@@ -333,39 +333,8 @@ export class NodeEditorDomRenderer {
                 create("div")
                     .classes("flex")
                     .children(
-                        GenericTemplates.button(UiText.get("downloadJson"), () => {
-                            const a = document.createElement('a');
-                            a.href = URL.createObjectURL(new Blob([JSON.stringify(this.editor)], {type: 'application/json'}));
-                            const timestamp = new Date().toISOString().replace(/:/g, '-');
-                            a.download = 'node-editor-' + timestamp + '.json';
-                            a.click();
-                        }, "download"),
-                        GenericTemplates.button(uploadTextState, () => {
-                            uploadIconState.value = "input";
-                            uploadTextState.value = UiText.get("selecting") + "...";
-                            const input = document.createElement('input');
-                            input.type = 'file';
-                            input.accept = '.json';
-                            input.onchange = () => {
-                                if (!input.files[0]) {
-                                    uploadIconState.value = "upload";
-                                    uploadTextState.value = UiText.get("uploadJson");
-                                    return;
-                                }
-                                uploadIconState.value = "cached";
-                                uploadTextState.value = UiText.get("loading") + "...";
-                                const reader = new FileReader();
-                                reader.onload = () => {
-                                    const json = JSON.parse(reader.result);
-                                    this.editor.loadFromJSON(json);
-                                    this.editor.rerender(true);
-                                    uploadIconState.value = "upload";
-                                    uploadTextState.value = UiText.get("uploadJson");
-                                };
-                                reader.readAsText(input.files[0]);
-                            };
-                            input.click();
-                        }, uploadIconState),
+                        GenericTemplates.button(UiText.get("downloadJson"), () => this.downloadJsonHandler(), "download"),
+                        GenericTemplates.button(uploadTextState, () => this.uploadJsonHandler(uploadIconState, uploadTextState), uploadIconState),
                     ).build(),
                 this.#tabSwitcher([
                     {
@@ -378,6 +347,41 @@ export class NodeEditorDomRenderer {
                     }
                 ])
             ).build();
+    }
+
+    downloadJsonHandler() {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([JSON.stringify(this.editor)], {type: 'application/json'}));
+        const timestamp = new Date().toISOString().replace(/:/g, '-');
+        a.download = 'node-editor-' + timestamp + '.json';
+        a.click();
+    }
+
+    uploadJsonHandler(uploadIconState, uploadTextState) {
+        uploadIconState.value = "input";
+        uploadTextState.value = UiText.get("selecting") + "...";
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = () => {
+            if (!input.files[0]) {
+                uploadIconState.value = "upload";
+                uploadTextState.value = UiText.get("uploadJson");
+                return;
+            }
+            uploadIconState.value = "cached";
+            uploadTextState.value = UiText.get("loading") + "...";
+            const reader = new FileReader();
+            reader.onload = () => {
+                const json = JSON.parse(reader.result);
+                this.editor.loadFromJSON(json);
+                this.editor.rerender(true);
+                uploadIconState.value = "upload";
+                uploadTextState.value = UiText.get("uploadJson");
+            };
+            reader.readAsText(input.files[0]);
+        };
+        input.click();
     }
 
     #renderNodeTypesSection() {

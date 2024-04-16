@@ -36,6 +36,7 @@ export const languageTextMap = {
         removeNode: "Remove Node",
         duplicateNode: "Duplicate node",
         connect: "Connect",
+        graphName: "Graph name",
     },
     de: {
         login: "Anmelden",
@@ -71,6 +72,7 @@ export const languageTextMap = {
         removeNode: "Knoten entfernen",
         duplicateNode: "Knoten duplizieren",
         connect: "Verbinden",
+        graphName: "Graphname",
     }
 }
 
