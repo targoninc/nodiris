@@ -158,6 +158,10 @@ export class EditorNode {
             }
             newX = newX / zoomState.value;
             newY = newY / zoomState.value;
+            const realOffset = {
+                x: newX - node.offsetLeft,
+                y: newY - node.offsetTop
+            };
             node.style.left = `${newX}px`;
             node.style.top = `${newY}px`;
             this.position = {
@@ -165,7 +169,25 @@ export class EditorNode {
                 y: newY - window.innerHeight / (2 * zoomState.value)
             };
             this.positionState.value = this.position;
-            store().get(StoreKeys.nodeEditor).rerender();
+            const editor = store().get(StoreKeys.nodeEditor);
+            for (const selectedNodeId of editor.selectedNodes) {
+                const selectedNode = editor.getNodeById(selectedNodeId);
+                if (selectedNode.id !== this.id) {
+                    const selectedNodeDom = document.getElementById(selectedNode.id);
+                    const newForSelected = {
+                        x: selectedNodeDom.offsetLeft + realOffset.x,
+                        y: selectedNodeDom.offsetTop + realOffset.y
+                    };
+                    selectedNodeDom.style.left = `${newForSelected.x}px`;
+                    selectedNodeDom.style.top = `${newForSelected.y}px`;
+                    selectedNode.position = {
+                        x: newForSelected.x - window.innerWidth / (2 * zoomState.value),
+                        y: newForSelected.y - window.innerHeight / (2 * zoomState.value)
+                    };
+                    selectedNode.positionState.value = selectedNode.position;
+                }
+            }
+            store().get(StoreKeys.renderer).rerenderConnections();
         };
         const up = () => {
             document.removeEventListener("mousemove", move);

@@ -26,6 +26,7 @@ export class NodeEditorDomRenderer {
         if (!store().get(StoreKeys.language$)) {
             store().set(StoreKeys.language$, signal(this.language));
         }
+        store().set(StoreKeys.renderer, this);
     }
 
     start(container) {
@@ -661,6 +662,7 @@ export class NodeEditorDomRenderer {
         }
 
         return create("div")
+            .id("connections")
             .children(
                 create("div")
                     .classes("node-editor-connections")
@@ -670,6 +672,12 @@ export class NodeEditorDomRenderer {
                     .build(),
                 fieldConnections
             ).build();
+    }
+
+    rerenderConnections() {
+        const connections = document.getElementById("connections");
+        connections.innerHTML = '';
+        connections.appendChild(this.#renderConnections());
     }
 
     #renderNodeConnections(node) {
@@ -699,9 +707,6 @@ export class NodeEditorDomRenderer {
             this.editor.unselectAllExcept();
             this.editor.rerender();
             node.startConnecting(e);
-        } else {
-            node.toggleSelection(e);
-            this.editor.rerender();
         }
         this.lastNodeClick = {
             node: node,
