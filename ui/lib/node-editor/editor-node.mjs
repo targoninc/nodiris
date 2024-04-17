@@ -137,6 +137,27 @@ export class EditorNode {
         }, {once: true});
     }
 
+    moveNode(node, offsetX, offsetY, zoomState, snapToGrid) {
+        const snapSize = 10;
+        let newX = offsetX;
+        let newY = offsetY;
+        if (snapToGrid) {
+            newX = Math.round(newX / snapSize) * snapSize;
+            newY = Math.round(newY / snapSize) * snapSize;
+        }
+        newX = newX / zoomState.value;
+        newY = newY / zoomState.value;
+        const editor = store().get(StoreKeys.nodeEditor);
+        const nodeInstance = editor.getNodeById(node.id);
+        nodeInstance.position = {
+            x: newX - window.innerWidth / (2 * zoomState.value),
+            y: newY - window.innerHeight / (2 * zoomState.value)
+        };
+        nodeInstance.positionState.value = nodeInstance.position;
+        node.style.left = `${newX}px`;
+        node.style.top = `${newY}px`;
+    }
+
     moveWithMouse(id, snapToGrid, zoomState, e) {
         if (e.target.nodeName === "INPUT") {
             return;
@@ -148,25 +169,19 @@ export class EditorNode {
         const nodeY = node.offsetTop;
         const diffX = mousex - nodeX;
         const diffY = mousey - nodeY;
-        const snapSize = 10;
+
+        const editor = store().get(StoreKeys.nodeEditor);
         const move = e => {
-            let newX = e.clientX - diffX;
-            let newY = e.clientY - diffY;
-            if (snapToGrid) {
-                newX = Math.round(newX / snapSize) * snapSize;
-                newY = Math.round(newY / snapSize) * snapSize;
-            }
-            newX = newX / zoomState.value;
-            newY = newY / zoomState.value;
-            node.style.left = `${newX}px`;
-            node.style.top = `${newY}px`;
-            this.position = {
-                x: newX - window.innerWidth / (2 * zoomState.value),
-                y: newY - window.innerHeight / (2 * zoomState.value)
-            };
-            this.positionState.value = this.position;
-            store().get(StoreKeys.nodeEditor).rerender();
+            const offsetX = e.clientX - diffX;
+            const offsetY = e.clientY - diffY;
+            const selectedNodes = editor.selectedNodes;
+            selectedNodes.forEach(selectedNodeId => {
+                const selectedNode = document.getElementById(selectedNodeId);
+                this.moveNode(selectedNode, offsetX, offsetY, zoomState, snapToGrid);
+            });
+            editor.rerender();
         };
+
         const up = () => {
             document.removeEventListener("mousemove", move);
             document.removeEventListener("mouseup", up);
