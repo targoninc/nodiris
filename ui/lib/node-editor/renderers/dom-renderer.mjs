@@ -130,7 +130,7 @@ export class NodeEditorDomRenderer {
                     .styles("margin-left", editorX, "margin-top", editorY)
                     .children(...this.editor.nodes.map(node => this.#renderNode(node, editorSize)))
                     .build(),
-                this.#renderEditorGlobals(collapsedState),
+                this.#renderEditorSidePane(collapsedState),
                 this.#renderEditorMenu(menuPositionState, menuClassState, editorSize),
                 create("div")
                     .classes("toast-container")
@@ -292,7 +292,7 @@ export class NodeEditorDomRenderer {
             .build();
     }
 
-    #renderEditorGlobals(collapsedState) {
+    #renderEditorSidePane(collapsedState) {
         const collapseTextState = signal(collapsedState.value ? UiText.get("pinPanel") : UiText.get("unpinPanel"));
         const collapseIconState = signal(collapsedState.value ? "transition_slide" : "transition_fade");
         const collapsedClassState = signal(collapsedState.value ? 'collapsed' : 'expanded');
@@ -309,7 +309,7 @@ export class NodeEditorDomRenderer {
         }
 
         return create("div")
-            .classes("node-editor-globals", "flex-v", collapsedClassState)
+            .classes("side-pane", "left", "flex-v", collapsedClassState)
             .children(
                 create("div")
                     .classes("flex", "spaced")
@@ -370,7 +370,7 @@ export class NodeEditorDomRenderer {
                         }, "download"),
                         GenericTemplates.button(uploadTextState, () => this.editor.uploadJsonHandler(uploadIconState, uploadTextState), uploadIconState),
                     ).build(),
-                this.#tabSwitcher([
+                GenericTemplates.tabSwitcher([
                     {
                         name: UiText.get("globals"),
                         key: "globals",
@@ -456,40 +456,6 @@ export class NodeEditorDomRenderer {
                     });
                 }, "add"),
                 ...this.editor.globals.map(global => this.#renderEditorGlobalSection(global))
-            ).build();
-    }
-
-    #tabSwitcher(tabs) {
-        const tabState = store().get(StoreKeys.tabKey$);
-        const tabContent = signal(tabs.find(tab => tab.key === tabState.value).content);
-        const tabButtons = tabs.map(tab => {
-            const buttonActive = signal(tabState.value === tab.key ? "active" : "_");
-            tabState.subscribe(tabKey => {
-                buttonActive.value = tabKey === tab.key ? "active" : "_";
-            });
-
-            return create("button")
-                .classes("node-editor-tab-button", buttonActive)
-                .onclick(() => {
-                    tabState.value = tab.key;
-                    tabContent.value = tab.content;
-                })
-                .text(tab.name)
-                .build();
-        });
-
-        return create("div")
-            .classes("flex-v")
-            .children(
-                create("div")
-                    .classes("node-editor-tab-switcher")
-                    .children(
-                        ...tabButtons
-                    ).build(),
-                create("div")
-                    .classes("node-editor-tab-content")
-                    .children(tabContent)
-                    .build()
             ).build();
     }
 

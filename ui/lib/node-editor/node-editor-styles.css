@@ -144,27 +144,42 @@
     font-size: var(--editor-font-size);
 }
 
-.node-editor-globals {
+.side-pane {
     position: absolute;
     width: 25dvw;
     height: 100%;
-    left: 0;
     top: 0;
     background: var(--node-background);
     border-right: 1px solid var(--node-border);
     padding: var(--editor-padding);
     overflow-y: auto;
     z-index: 2;
-    transition: left 0.2s;
+    transition: all 0.2s;
     cursor: default;
 }
 
-.node-editor-globals.collapsed {
+.side-pane.left {
+    left: 0;
+}
+
+.side-pane.right {
+    right: 0;
+}
+
+.side-pane.left.collapsed {
     left: -25dvw;
 }
 
-.node-editor-globals.collapsed:hover {
+.side-pane.right.collapsed {
+    right: -25dvw;
+}
+
+.side-pane.left.collapsed:hover {
     left: 0;
+}
+
+.side-pane.right.collapsed:hover {
+    right: 0;
 }
 
 .material-symbols-outlined {

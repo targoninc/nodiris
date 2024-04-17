@@ -86,6 +86,40 @@ export class GenericTemplates {
             ).build();
     }
 
+    static tabSwitcher(tabs) {
+        const tabState = store().get(StoreKeys.tabKey$);
+        const tabContent = signal(tabs.find(tab => tab.key === tabState.value).content);
+        const tabButtons = tabs.map(tab => {
+            const buttonActive = signal(tabState.value === tab.key ? "active" : "_");
+            tabState.subscribe(tabKey => {
+                buttonActive.value = tabKey === tab.key ? "active" : "_";
+            });
+
+            return create("button")
+                .classes("node-editor-tab-button", buttonActive)
+                .onclick(() => {
+                    tabState.value = tab.key;
+                    tabContent.value = tab.content;
+                })
+                .text(tab.name)
+                .build();
+        });
+
+        return create("div")
+            .classes("flex-v")
+            .children(
+                create("div")
+                    .classes("node-editor-tab-switcher")
+                    .children(
+                        ...tabButtons
+                    ).build(),
+                create("div")
+                    .classes("node-editor-tab-content")
+                    .children(tabContent)
+                    .build()
+            ).build();
+    }
+
     static button(text, onclick, icon = null) {
         return create("button")
             .classes("node-editor-button")
