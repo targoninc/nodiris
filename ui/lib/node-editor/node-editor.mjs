@@ -59,7 +59,8 @@ export class NodeEditor {
     }
 
     stringify() {
-        const base = JSON.parse(CustomStringifier.stringify(this));
+        const circularCheckExclusionProps = ["type"];
+        const base = JSON.parse(CustomStringifier.stringify(this, circularCheckExclusionProps));
         delete base["user"];
         delete base["authenticationEnabled"];
         delete base["userGraphs"];

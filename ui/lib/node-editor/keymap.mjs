@@ -20,4 +20,10 @@ export const Keymap = {
             store().get(StoreKeys.nodeEditor).toggleGrid();
         }
     },
+    resetView: {
+        keys: ["r"],
+        action: () => {
+            store().get(StoreKeys.nodeEditor).resetView();
+        }
+    },
 }

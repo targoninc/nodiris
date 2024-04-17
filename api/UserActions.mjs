@@ -5,7 +5,7 @@ export class UserActions {
     static saveAvatar(db) {
         return async (req, res) => {
             if (!req.user) {
-                res.status(401).send({message: "Unauthorized"});
+                res.status(401).send("Unauthorized");
                 return;
             }
             const id = req.user.id;
@@ -14,7 +14,7 @@ export class UserActions {
             const sharpImage = sharp(avatarBuffer);
             const type = await sharpImage.metadata().then(info => info.format);
             if (!['jpg', 'png', 'gif'].includes(type)) {
-                res.status(400).send({message: "Invalid image format. Appropriate formats are {jpeg, png, gif}"});
+                res.status(400).send("Invalid image format. Appropriate formats are {jpeg, png, gif}");
                 return;
             }
 

@@ -79,12 +79,12 @@ export class DB {
         return await this.query("SELECT * FROM nodeeditor.graphs WHERE user_id = ?", [userId]);
     }
 
-    async getGraph(userId, graphId) {
-        const rows = await this.query("SELECT * FROM nodeeditor.graphs WHERE user_id = ? AND id = ?", [userId, graphId]);
+    async getGraph(graphId) {
+        const rows = await this.query("SELECT * FROM nodeeditor.graphs WHERE graph_id = ?", [graphId]);
         return rows ? rows[0] : null;
     }
 
     async deleteGraph(userId, graphId) {
-        await this.query("DELETE FROM nodeeditor.graphs WHERE user_id = ? AND id = ?", [userId, graphId]);
+        await this.query("DELETE FROM nodeeditor.graphs WHERE user_id = ? AND graph_id = ?", [userId, graphId]);
     }
 }

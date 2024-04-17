@@ -50,7 +50,7 @@ export class AuthActions {
                     sameSite: 'none'
                 });
 
-                res.send({message: "User has been successfully logged out."});
+                res.send("User has been successfully logged out.");
             });
         }
     }

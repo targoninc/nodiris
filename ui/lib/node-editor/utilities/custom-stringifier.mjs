@@ -8,7 +8,7 @@ export class CustomStringifier {
         return obj.constructor === FjsObservable;
     }
 
-    static stringify(obj) {
+    static stringify(obj, circularCheckExclusionProps = []) {
         if (this.isFjsObservable(obj)) {
             return JSON.stringify(obj.value);
         }
@@ -21,7 +21,12 @@ export class CustomStringifier {
                 }
 
                 // avoid circular references
-                if (seen.indexOf(val) >= 0) return;
+                if (seen.indexOf(val) >= 0) {
+                    if (circularCheckExclusionProps.includes(key)) {
+                        return val;
+                    }
+                    return;
+                }
 
                 seen.push(val);
             }

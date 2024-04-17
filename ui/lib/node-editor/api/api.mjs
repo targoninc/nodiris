@@ -1,3 +1,5 @@
+import {UiActions} from "../renderers/ui-actions.mjs";
+
 export class Api {
     static async authenticationEnabled() {
         const res = await fetch(`/api/authenticationEnabled`, {
@@ -68,11 +70,13 @@ export class Api {
             })
         });
         if (res.status !== 200) {
+            const text = await res.text();
+            UiActions.toast(text, "error");
             return {
-                error: await res.text()
+                error: text
             };
         }
-        return await res.json();
+        return {};
     }
 
     static async saveGraph(json) {
@@ -88,11 +92,13 @@ export class Api {
             })
         });
         if (res.status !== 200) {
+            const text = await res.text();
+            UiActions.toast(text, "error");
             return {
-                error: await res.text()
+                error: text
             };
         }
-        return await res.json();
+        return {};
     }
 
     static async getUserGraphs() {
@@ -105,10 +111,34 @@ export class Api {
             credentials: 'include',
         });
         if (res.status !== 200) {
+            const text = await res.text();
+            UiActions.toast(text, "error");
             return {
-                error: await res.text()
+                error: text
             };
         }
         return await res.json();
+    }
+
+    static async deleteGraph(id) {
+        const res = await fetch(`/api/deleteGraph`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                id
+            })
+        });
+        if (res.status !== 200) {
+            const text = await res.text();
+            UiActions.toast(text, "error");
+            return {
+                error: text
+            };
+        }
+        return {};
     }
 }

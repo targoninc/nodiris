@@ -44,12 +44,19 @@ export class NodeEditorDomRenderer {
                 }
                 const keys = Keymap[key].keys;
                 if (keys.includes(e.key)) {
+                    if (this.eventHasModifiers(e)) {
+                        return;
+                    }
                     e.preventDefault();
                     Keymap[key].action();
                     this.editor.rerender();
                 }
             });
         }
+    }
+
+    eventHasModifiers(e) {
+        return e.ctrlKey || e.shiftKey || e.altKey || e.metaKey;
     }
 
     #renderFrame(force = false) {
@@ -176,13 +183,10 @@ export class NodeEditorDomRenderer {
             .build();
     }
 
-    #renderUserComponent() {
-        const user = this.editor.user;
-        const authenticated = signal(user.value !== null);
+    #renderUserComponent(user, authenticated) {
         const buttonText = signal(authenticated.value ? UiText.get("logout") : UiText.get("login"));
         const buttonIcon = signal(authenticated.value ? "logout" : "login");
         user.subscribe(u => {
-            authenticated.value = u !== null;
             buttonText.value = u !== null ? UiText.get("logout") : UiText.get("login");
             buttonIcon.value = u !== null ? "logout" : "login";
         });
@@ -250,23 +254,7 @@ export class NodeEditorDomRenderer {
             .children(
                 create("div")
                     .classes("flex", "ignore-child-pointer")
-                    .onclick(() => {
-                        const input = document.createElement('input');
-                        input.type = 'file';
-                        input.accept = 'image/*';
-                        input.onchange = () => {
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                                const base64 = reader.result.split(',')[1];
-                                avatar.value = base64;
-                                Api.saveAvatar(base64).then(() => {
-                                    this.editor.rerender(true);
-                                });
-                            };
-                            reader.readAsDataURL(input.files[0]);
-                        };
-                        input.click();
-                    })
+                    .onclick(() => UiActions.uploadAvatar(this.editor, avatar))
                     .children(
                         ifjs(avatar, GenericTemplates.materialIcon("person"), true),
                         ifjs(avatar, this.#renderAvatar(avatar)),
@@ -334,6 +322,11 @@ export class NodeEditorDomRenderer {
             collapseIconState,
             collapsedClassState
         } = NodeEditorDomRenderer.getSidePaneStates(collapsedState);
+        const user = this.editor.user;
+        const authenticated = signal(user.value !== null);
+        user.subscribe(u => {
+            authenticated.value = u !== null;
+        });
 
         return create("div")
             .classes("side-pane", "right", "flex-v", collapsedClassState)
@@ -344,13 +337,13 @@ export class NodeEditorDomRenderer {
                         GenericTemplates.button(collapseTextState, () => {
                             collapsedState.value = !collapsedState.value;
                         }, collapseIconState),
-                        this.#renderUserComponent(),
+                        this.#renderUserComponent(user, authenticated),
                     ).build(),
-                this.#renderUserSection()
+                this.#renderUserSection(user, authenticated)
             ).build();
     }
 
-    #renderUserSection() {
+    #renderUserSection(user, authenticated) {
         const ownGraphs = StoreKeys.create(StoreKeys.ownGraphs, this.editor.userGraphs);
         const loading = signal(false);
         if (ownGraphs.value.length === 0) {
@@ -360,13 +353,37 @@ export class NodeEditorDomRenderer {
                 loading.value = false;
             });
         }
+        user.subscribe(u => {
+            if (u) {
+                loading.value = true;
+                Api.getUserGraphs().then(res => {
+                    ownGraphs.value = res.graphs;
+                    loading.value = false;
+                });
+            } else {
+                ownGraphs.value = [];
+            }
+        });
 
         return create("div")
             .classes("flex-v")
             .children(
-                create("h1")
+                ifjs(authenticated, create("div")
+                    .classes("flex")
+                    .children(
+                        GenericTemplates.button(UiText.get("saveToCloud"), () => {
+                            Api.saveGraph(this.editor.stringify()).then((res) => {
+                                if (!res.error) {
+                                    this.editor.userGraphs = [];
+                                    this.editor.rerender(true);
+                                    UiActions.toast(UiText.get("successSavingGraph"), "check");
+                                }
+                            });
+                        }, "cloud_upload"),
+                    ).build()),
+                ifjs(authenticated, create("h1")
                     .text("Graphs")
-                    .build(),
+                    .build()),
                 ifjs(loading, GenericTemplates.spinner()),
                 ifjs(loading, this.#renderGraphList(ownGraphs), true)
             ).build();
@@ -374,6 +391,10 @@ export class NodeEditorDomRenderer {
 
     #renderGraphList(listState) {
         const update = (list) => {
+            if (!list) {
+                return nullElement();
+            }
+
             return create("div")
                 .classes("flex-v")
                 .children(
@@ -389,6 +410,18 @@ export class NodeEditorDomRenderer {
                                 GenericTemplates.infoPill(json.graphInfo.public ? UiText.get("public") : UiText.get("private"),
                                     json.graphInfo.public ? "lock_open" : "lock",
                                     UiText.get("graphOnlyVisibleToYou")),
+                                GenericTemplates.button(UiText.get("load"), () => {
+                                    this.editor.loadFromJSON(json);
+                                    this.editor.rerender(true);
+                                }, "cloud_download"),
+                                GenericTemplates.button(UiText.get("delete"), () => {
+                                    Api.deleteGraph(graph.graph_id).then((res) => {
+                                        if (!res.error) {
+                                            listState.value = list.filter(g => g.graph_id !== graph.graph_id);
+                                            UiActions.toast(UiText.get("successDeletingGraph"), "check");
+                                        }
+                                    });
+                                }, "delete"),
                             ).build();
                     })
                 ).build();

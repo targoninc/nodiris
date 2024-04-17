@@ -39,6 +39,11 @@ export const languageTextMap = {
         graphName: "Graph name",
         copy: "Copy",
         copiedToClipboard: "Copied to clipboard",
+        saveToCloud: "Save to cloud",
+        load: "Load",
+        delete: "Delete",
+        successDeletingGraph: "Successfully deleted graph",
+        successSavingGraph: "Successfully saved graph",
     },
     de: {
         login: "Anmelden",
@@ -77,6 +82,11 @@ export const languageTextMap = {
         graphName: "Graphname",
         copy: "Kopieren",
         copiedToClipboard: "In die Zwichenablage kopiert",
+        saveToCloud: "In Cloud speichern",
+        load: "Laden",
+        delete: "Löschen",
+        successDeletingGraph: "Graph erfolgreich gelöscht",
+        successSavingGraph: "Graph erfolgreich gespeichert",
     }
 }
 
