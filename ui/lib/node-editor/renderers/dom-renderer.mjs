@@ -57,9 +57,9 @@ export class NodeEditorDomRenderer {
                 window.focusLock = false;
             }
             if (this.editor.settings.showGrid) {
-                this.#updateCssVariable('--node-editor-grid', '1px solid var(--node-border)');
+                UiActions.updateCssVariable('--node-editor-grid', '1px solid var(--node-border)');
             } else {
-                this.#updateCssVariable('--node-editor-grid', 'none');
+                UiActions.updateCssVariable('--node-editor-grid', 'none');
             }
             this.container.innerHTML = '';
             const editorSize = {
@@ -71,17 +71,13 @@ export class NodeEditorDomRenderer {
             }
             const zoom = this.editor.zoomState.value;
             if (zoom < 1) {
-                this.#updateCssVariable('--node-editor-zoom', zoom);
+                UiActions.updateCssVariable('--node-editor-zoom', zoom);
             } else {
-                this.#updateCssVariable('--node-editor-zoom', 1);
+                UiActions.updateCssVariable('--node-editor-zoom', 1);
             }
             this.container.appendChild(this.#renderEditor(editorSize, this.panelCollapsedState));
             this.container.appendChild(this.#renderConnections());
         }
-    }
-
-    #updateCssVariable(name, value) {
-        document.documentElement.style.setProperty(name, value);
     }
     
     #renderEditor(editorSize, collapsedState) {
@@ -126,7 +122,7 @@ export class NodeEditorDomRenderer {
                     .classes("node-editor-grid")
                     .id("node-editor-grid")
                     .children(
-                        this.#generateGrid(this.editor.position.value.x, this.editor.position.value.y)
+                        this.#generateEditorGrid(this.editor.position.value.x, this.editor.position.value.y)
                     ).build(),
                 create("div")
                     .classes("node-editor-nodes")
@@ -142,10 +138,13 @@ export class NodeEditorDomRenderer {
             ).build();
     }
 
-    #generateGrid(xOff, yOff) {
-        const grid = [];
+    #generateEditorGrid(xOff, yOff) {
         const zoom = this.editor.zoomState.value;
-        const resolution = 100 * zoom;
+        return this.#generateGridLines(xOff, yOff, 100 * zoom)
+    }
+
+    #generateGridLines(xOff, yOff, resolution) {
+        const grid = [];
         const width = window.innerWidth;
         const height = window.innerHeight;
         const xMod = xOff % resolution;
@@ -154,18 +153,25 @@ export class NodeEditorDomRenderer {
         do {
             x = i * resolution + xMod + width / 2;
             y = i * resolution + yMod + height / 2;
-            grid.push(create("div").classes("grid-line", "vertical").styles("left", `${x}px`).build());
-            grid.push(create("div").classes("grid-line", "horizontal").styles("top", `${y}px`).build());
+            grid.push(this.#gridLine(x, y, true));
+            grid.push(this.#gridLine(x, y, false));
             i++;
         } while (x < width || y < height);
         do {
             x = i * resolution + xMod + width / 2;
             y = i * resolution + yMod + height / 2;
-            grid.push(create("div").classes("grid-line", "vertical").styles("left", `${x}px`).build());
-            grid.push(create("div").classes("grid-line", "horizontal").styles("top", `${y}px`).build());
+            grid.push(this.#gridLine(x, y, true));
+            grid.push(this.#gridLine(x, y, false));
             i--;
         } while (x > 0 || y > 0);
         return grid;
+    }
+
+    #gridLine(x, y, horizontal) {
+        return create("div")
+            .classes("grid-line", horizontal ? "horizontal" : "vertical")
+            .styles(horizontal ? "top" : "left", `${horizontal ? y : x}px`)
+            .build();
     }
 
     #renderUserComponent() {
@@ -362,7 +368,7 @@ export class NodeEditorDomRenderer {
                         GenericTemplates.button(UiText.get("download"), () => {
                             UiActions.download(this.editor.stringify(), `graph-${this.editor.graphInfo.name}.json`);
                         }, "download"),
-                        GenericTemplates.button(uploadTextState, () => this.uploadJsonHandler(uploadIconState, uploadTextState), uploadIconState),
+                        GenericTemplates.button(uploadTextState, () => this.editor.uploadJsonHandler(uploadIconState, uploadTextState), uploadIconState),
                     ).build(),
                 this.#tabSwitcher([
                     {
@@ -377,33 +383,6 @@ export class NodeEditorDomRenderer {
                     }
                 ])
             ).build();
-    }
-
-    uploadJsonHandler(uploadIconState, uploadTextState) {
-        uploadIconState.value = "input";
-        uploadTextState.value = UiText.get("selecting") + "...";
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        input.onchange = () => {
-            if (!input.files[0]) {
-                uploadIconState.value = "upload";
-                uploadTextState.value = UiText.get("upload");
-                return;
-            }
-            uploadIconState.value = "cached";
-            uploadTextState.value = UiText.get("loading") + "...";
-            const reader = new FileReader();
-            reader.onload = () => {
-                const json = JSON.parse(reader.result);
-                this.editor.loadFromJSON(json);
-                this.editor.rerender(true);
-                uploadIconState.value = "upload";
-                uploadTextState.value = UiText.get("upload");
-            };
-            reader.readAsText(input.files[0]);
-        };
-        input.click();
     }
 
     #renderNodeTypesSection() {
@@ -702,18 +681,6 @@ export class NodeEditorDomRenderer {
             })).build();
     }
 
-    #handleNodeClick(e, node) {
-        if (this.lastNodeClick && this.lastNodeClick.node === node && Date.now() - this.lastNodeClick.time < 300) {
-            this.editor.unselectAllExcept();
-            this.editor.rerender();
-            node.startConnecting(e);
-        }
-        this.lastNodeClick = {
-            node: node,
-            time: Date.now()
-        };
-    }
-
     #renderNode(node, editorSize) {
         const menuClassState = signal('hidden');
         const menuPositionState = signal({x: 0, y: 0});
@@ -734,7 +701,7 @@ export class NodeEditorDomRenderer {
                     node.moveWithMouse(node.id, this.editor.settings.gridSnapping, this.editor.zoomState, e);
                 })
                 .onclick((e) => {
-                    this.#handleNodeClick(e, node);
+                    this.editor.handleNodeClick(e, node);
                 })
                 .oncontextmenu((e) => {
                     node.openContextMenu(e, menuClassState, menuPositionState, this.editor.zoomState.value, editorSize, this.#renderFrame.bind(this));
@@ -754,7 +721,7 @@ export class NodeEditorDomRenderer {
                     node.moveWithMouse(node.id, this.editor.settings.gridSnapping, this.editor.zoomState, e);
                 })
                 .onclick((e) => {
-                    this.#handleNodeClick(e, node);
+                    this.editor.handleNodeClick(e, node);
                 })
                 .oncontextmenu((e) => {
                     node.openContextMenu(e, menuClassState, menuPositionState, this.editor.zoomState.value, editorSize, this.#renderFrame.bind(this));
@@ -773,7 +740,7 @@ export class NodeEditorDomRenderer {
                 node.moveWithMouse(node.id, this.editor.settings.gridSnapping, this.editor.zoomState, e);
             })
             .onclick((e) => {
-                this.#handleNodeClick(e, node);
+                this.editor.handleNodeClick(e, node);
             })
             .oncontextmenu((e) => {
                 node.openContextMenu(e, menuClassState, menuPositionState, this.editor.zoomState.value, editorSize, this.#renderFrame.bind(this));

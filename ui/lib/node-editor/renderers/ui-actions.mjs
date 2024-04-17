@@ -38,4 +38,8 @@ export class UiActions {
         a.download = filename;
         a.click();
     }
+
+    static updateCssVariable(name, value) {
+        document.documentElement.style.setProperty(name, value);
+    }
 }

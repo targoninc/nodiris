@@ -593,5 +593,44 @@ export class NodeEditor {
         this.graphInfo = parse.graphInfo;
         this.selectedNodes = [];
     }
+
+    handleNodeClick(e, node) {
+        if (this.lastNodeClick && this.lastNodeClick.node === node && Date.now() - this.lastNodeClick.time < 300) {
+            this.unselectAllExcept();
+            this.rerender();
+            node.startConnecting(e);
+        }
+        this.lastNodeClick = {
+            node: node,
+            time: Date.now()
+        };
+    }
+
+    uploadJsonHandler(uploadIconState, uploadTextState) {
+        uploadIconState.value = "input";
+        uploadTextState.value = UiText.get("selecting") + "...";
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = () => {
+            if (!input.files[0]) {
+                uploadIconState.value = "upload";
+                uploadTextState.value = UiText.get("upload");
+                return;
+            }
+            uploadIconState.value = "cached";
+            uploadTextState.value = UiText.get("loading") + "...";
+            const reader = new FileReader();
+            reader.onload = () => {
+                const json = JSON.parse(reader.result);
+                this.loadFromJSON(json);
+                this.rerender(true);
+                uploadIconState.value = "upload";
+                uploadTextState.value = UiText.get("upload");
+            };
+            reader.readAsText(input.files[0]);
+        };
+        input.click();
+    }
 }
 
