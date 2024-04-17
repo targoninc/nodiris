@@ -353,15 +353,8 @@ export class NodeEditorDomRenderer {
     }
 
     #renderUserSection(user, authenticated) {
-        const ownGraphs = StoreKeys.create(StoreKeys.ownGraphs, this.editor.userGraphs);
+        const ownGraphs = StoreKeys.create(StoreKeys.ownGraphs, this.editor.userGraphs ?? []);
         const loading = signal(false);
-        if (ownGraphs.value.length === 0) {
-            loading.value = true;
-            Api.getUserGraphs().then(res => {
-                ownGraphs.value = res.graphs;
-                loading.value = false;
-            });
-        }
         user.subscribe(u => {
             if (u) {
                 loading.value = true;
@@ -383,7 +376,8 @@ export class NodeEditorDomRenderer {
                         GenericTemplates.button(UiText.get("saveToCloud"), () => {
                             Api.saveGraph(this.editor.stringify()).then((res) => {
                                 if (!res.error) {
-                                    this.editor.userGraphs = [];
+                                    this.editor.userGraphs = res.graphs;
+                                    ownGraphs.value = res.graphs;
                                     this.editor.rerender(true);
                                     UiActions.toast(UiText.get("successSavingGraph"), "check");
                                 }
@@ -411,26 +405,34 @@ export class NodeEditorDomRenderer {
                         const json = JSON.parse(graph.graph_json);
 
                         return create("div")
-                            .classes("flex", "list-graph")
+                            .classes("flex", "list-graph", "spaced")
                             .children(
-                                create("h2")
-                                    .text(json.graphInfo.name)
-                                    .build(),
-                                GenericTemplates.infoPill(json.graphInfo.public ? UiText.get("public") : UiText.get("private"),
-                                    json.graphInfo.public ? "lock_open" : "lock",
-                                    UiText.get("graphOnlyVisibleToYou")),
-                                GenericTemplates.button(UiText.get("load"), () => {
-                                    this.editor.loadFromJSON(json);
-                                    this.editor.rerender(true);
-                                }, "cloud_download"),
-                                GenericTemplates.button(UiText.get("delete"), () => {
-                                    Api.deleteGraph(graph.graph_id).then((res) => {
-                                        if (!res.error) {
-                                            listState.value = list.filter(g => g.graph_id !== graph.graph_id);
-                                            UiActions.toast(UiText.get("successDeletingGraph"), "check");
-                                        }
-                                    });
-                                }, "delete"),
+                                create("div")
+                                    .classes("flex")
+                                    .children(
+                                        GenericTemplates.infoPill(json.graphInfo.public ? UiText.get("public") : UiText.get("private"),
+                                            json.graphInfo.public ? "lock_open" : "lock",
+                                            UiText.get("graphOnlyVisibleToYou")),
+                                        create("h2")
+                                            .text(json.graphInfo.name)
+                                            .build(),
+                                    ).build(),
+                                create("div")
+                                    .classes("flex")
+                                    .children(
+                                        GenericTemplates.button(UiText.get("load"), () => {
+                                            this.editor.loadFromJSON(json);
+                                            this.editor.rerender(true);
+                                        }, "cloud_download"),
+                                        GenericTemplates.button(UiText.get("delete"), () => {
+                                            Api.deleteGraph(graph.graph_id).then((res) => {
+                                                if (!res.error) {
+                                                    listState.value = list.filter(g => g.graph_id !== graph.graph_id);
+                                                    UiActions.toast(UiText.get("successDeletingGraph"), "check");
+                                                }
+                                            });
+                                        }, "delete"),
+                                    ).build(),
                             ).build();
                     })
                 ).build();

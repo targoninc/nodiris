@@ -17,9 +17,13 @@ export class GraphActions {
             const json = JSON.parse(graph);
             json.version = 1;
 
+            const userId = req.user.id;
             CLI.debug(`Saving graph: ${JSON.stringify(json)}`);
-            await db.saveGraph(req.user.id, JSON.stringify(json));
+            await db.saveGraph(userId, JSON.stringify(json));
 
+            const userGraphs = await db.getUserGraphs(userId);
+
+            res.send({ graphs: userGraphs });
             res.sendStatus(200);
         }
     }

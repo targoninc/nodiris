@@ -98,7 +98,7 @@ export class Api {
                 error: text
             };
         }
-        return {};
+        return await res.json();
     }
 
     static async getUserGraphs() {
