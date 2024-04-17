@@ -95,7 +95,6 @@ export class NodeEditor {
 
     loadUserGraphs() {
         Api.getUserGraphs().then(res => {
-            console.log("User graphs", res.graphs);
             this.userGraphs = res.graphs;
         });
     }

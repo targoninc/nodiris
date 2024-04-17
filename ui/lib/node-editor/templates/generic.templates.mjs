@@ -286,4 +286,20 @@ export class GenericTemplates {
 
         return base.build();
     }
+
+    static spinner() {
+        const circleCount = 4;
+        const delay = 0.2;
+
+        return create("div")
+            .classes("spinner")
+            .children(
+                ...Array.from({length: circleCount}, (_, i) => {
+                    return create("div")
+                        .classes("spinner-circle")
+                        .styles("animation-delay", `-${i * delay}s`)
+                        .build();
+                })
+            ).build();
+    }
 }

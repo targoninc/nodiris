@@ -1,5 +1,5 @@
 export const DefaultEditorGraphinfo = {
-    name: "Graph",
+    name: "Example Graph",
     public: false,
     tags: []
 }

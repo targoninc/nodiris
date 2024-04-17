@@ -22,6 +22,7 @@ export class NodeEditorDomRenderer {
         this.container = null;
         this.lastNodeClick = null;
         this.panelCollapsedState = signal(false);
+        this.userPanelCollapsedState = signal(false);
         this.language = store().get(StoreKeys.language$)?.value ?? "en";
         if (!store().get(StoreKeys.language$)) {
             store().set(StoreKeys.language$, signal(this.language));
@@ -75,12 +76,12 @@ export class NodeEditorDomRenderer {
             } else {
                 UiActions.updateCssVariable('--node-editor-zoom', 1);
             }
-            this.container.appendChild(this.#renderEditor(editorSize, this.panelCollapsedState));
+            this.container.appendChild(this.#renderEditor(editorSize));
             this.container.appendChild(this.#renderConnections());
         }
     }
     
-    #renderEditor(editorSize, collapsedState) {
+    #renderEditor(editorSize) {
         const menuClassState = signal('hidden');
         const menuPositionState = signal({x: 0, y: 0});
         const editorX = signal(this.editor.position.value.x + "px");
@@ -130,7 +131,8 @@ export class NodeEditorDomRenderer {
                     .styles("margin-left", editorX, "margin-top", editorY)
                     .children(...this.editor.nodes.map(node => this.#renderNode(node, editorSize)))
                     .build(),
-                this.#renderEditorSidePane(collapsedState),
+                this.#renderEditorSidePane(this.panelCollapsedState),
+                this.editor.authenticationEnabled ? this.#renderEditorUserSidePane(this.userPanelCollapsedState) : null,
                 this.#renderEditorMenu(menuPositionState, menuClassState, editorSize),
                 create("div")
                     .classes("toast-container")
@@ -293,20 +295,11 @@ export class NodeEditorDomRenderer {
     }
 
     #renderEditorSidePane(collapsedState) {
-        const collapseTextState = signal(collapsedState.value ? UiText.get("pinPanel") : UiText.get("unpinPanel"));
-        const collapseIconState = signal(collapsedState.value ? "transition_slide" : "transition_fade");
-        const collapsedClassState = signal(collapsedState.value ? 'collapsed' : 'expanded');
-        collapsedState.onUpdate = collapsed => {
-            if (collapsed) {
-                collapseTextState.value = UiText.get("pinPanel");
-                collapseIconState.value = "transition_slide";
-                collapsedClassState.value = 'collapsed';
-            } else {
-                collapseTextState.value = UiText.get("unpinPanel");
-                collapseIconState.value = "transition_fade";
-                collapsedClassState.value = 'expanded';
-            }
-        }
+        const {
+            collapseTextState,
+            collapseIconState,
+            collapsedClassState
+        } = NodeEditorDomRenderer.getSidePaneStates(collapsedState);
 
         return create("div")
             .classes("side-pane", "left", "flex-v", collapsedClassState)
@@ -314,8 +307,7 @@ export class NodeEditorDomRenderer {
                 create("div")
                     .classes("flex", "spaced")
                     .children(
-                        ifjs(this.editor.authenticationEnabled, this.#renderUserComponent()),
-                        ifjs(this.editor.authenticationEnabled, create("div").build(), true),
+                        create("div").build(),
                         create("div")
                             .classes("flex")
                             .children(
@@ -334,6 +326,101 @@ export class NodeEditorDomRenderer {
                     ).build(),
                 this.#renderGeneralSection()
             ).build();
+    }
+
+    #renderEditorUserSidePane(collapsedState) {
+        const {
+            collapseTextState,
+            collapseIconState,
+            collapsedClassState
+        } = NodeEditorDomRenderer.getSidePaneStates(collapsedState);
+
+        return create("div")
+            .classes("side-pane", "right", "flex-v", collapsedClassState)
+            .children(
+                create("div")
+                    .classes("flex", "spaced")
+                    .children(
+                        GenericTemplates.button(collapseTextState, () => {
+                            collapsedState.value = !collapsedState.value;
+                        }, collapseIconState),
+                        this.#renderUserComponent(),
+                    ).build(),
+                this.#renderUserSection()
+            ).build();
+    }
+
+    #renderUserSection() {
+        const ownGraphs = StoreKeys.create(StoreKeys.ownGraphs, this.editor.userGraphs);
+        const loading = signal(false);
+        if (ownGraphs.value.length === 0) {
+            loading.value = true;
+            Api.getUserGraphs().then(res => {
+                ownGraphs.value = res.graphs;
+                loading.value = false;
+            });
+        }
+
+        return create("div")
+            .classes("flex-v")
+            .children(
+                create("h1")
+                    .text("Graphs")
+                    .build(),
+                ifjs(loading, GenericTemplates.spinner()),
+                ifjs(loading, this.#renderGraphList(ownGraphs), true)
+            ).build();
+    }
+
+    #renderGraphList(listState) {
+        const update = (list) => {
+            return create("div")
+                .classes("flex-v")
+                .children(
+                    ...list.map(graph => {
+                        const json = JSON.parse(graph.graph_json);
+
+                        return create("div")
+                            .classes("flex", "list-graph")
+                            .children(
+                                create("h2")
+                                    .text(json.graphInfo.name)
+                                    .build(),
+                                GenericTemplates.infoPill(json.graphInfo.public ? UiText.get("public") : UiText.get("private"),
+                                    json.graphInfo.public ? "lock_open" : "lock",
+                                    UiText.get("graphOnlyVisibleToYou")),
+                            ).build();
+                    })
+                ).build();
+        };
+
+        let template = signal(nullElement());
+        listState.subscribe(list => {
+            template.value = update(list);
+        });
+        template.value = update(listState.value);
+        return create("div")
+            .classes("flex-v")
+            .children(template)
+            .build();
+    }
+
+    static getSidePaneStates(collapsedState) {
+        const collapseTextState = signal(collapsedState.value ? UiText.get("pinPanel") : UiText.get("unpinPanel"));
+        const collapseIconState = signal(collapsedState.value ? "transition_slide" : "transition_fade");
+        const collapsedClassState = signal(collapsedState.value ? 'collapsed' : 'expanded');
+        collapsedState.onUpdate = collapsed => {
+            if (collapsed) {
+                collapseTextState.value = UiText.get("pinPanel");
+                collapseIconState.value = "transition_slide";
+                collapsedClassState.value = 'collapsed';
+            } else {
+                collapseTextState.value = UiText.get("unpinPanel");
+                collapseIconState.value = "transition_fade";
+                collapsedClassState.value = 'expanded';
+            }
+        }
+        return {collapseTextState, collapseIconState, collapsedClassState};
     }
 
     #renderGeneralSection() {

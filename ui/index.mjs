@@ -42,10 +42,7 @@ nodes[0].connect(nodes[1].id);
 const existingEditor = sessionStorage.getItem("editor");
 let editor;
 if (!existingEditor) {
-    editor = NodeEditor.create({
-        ...DefaultEditorGraphinfo,
-        name: "Graph"
-    }, types, nodes, globals);
+    editor = NodeEditor.create(DefaultEditorGraphinfo, types, nodes, globals);
 } else {
     editor = NodeEditor.fromJSON(JSON.parse(existingEditor));
 }
