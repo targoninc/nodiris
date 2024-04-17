@@ -7,7 +7,7 @@ import {UiText} from "../enums/ui-text.mjs";
 export class GenericTemplates {
     static inputPopup(title, value, onSave, type = "text") {
         const popup = create("div")
-            .classes("input-popup", "flex-v")
+            .classes("popup", "flex-v")
             .children(
                 create("div")
                     .classes("input-popup-title")
@@ -41,7 +41,7 @@ export class GenericTemplates {
 
     static dropdownPopup(title, options, onSave) {
         const popup = create("div")
-            .classes("input-popup", "flex-v")
+            .classes("popup", "flex-v")
             .children(
                 create("div")
                     .classes("input-popup-title")
@@ -67,17 +67,20 @@ export class GenericTemplates {
         editor.appendChild(container);
     }
 
-    static popupButtons(onSave = () => {}, onCancel = () => {}, removePopups = true) {
+    static popupButtons(onSave = () => {}, onCancel = () => {}, removePopups = true, texts = {
+        cancel: UiText.get("cancel"),
+        save: UiText.get("save")
+    }) {
         return create("div")
             .classes("flex", "spaced")
             .children(
-                this.button(UiText.get("cancel"), () => {
+                this.button(texts.cancel, () => {
                     onCancel();
                     if (removePopups) {
                         UiActions.removePopupContainers();
                     }
                 }, "cancel"),
-                this.button(UiText.get("save"), () => {
+                this.button(texts.save, () => {
                     onSave();
                     if (removePopups) {
                         UiActions.removePopupContainers();
@@ -177,8 +180,8 @@ export class GenericTemplates {
             ).build();
     }
 
-    static materialIcon(icon) {
-        return create("span")
+    static materialIcon(icon, tag = "span") {
+        return create(tag)
             .classes("material-symbols-outlined")
             .text(icon)
             .build();
@@ -301,5 +304,33 @@ export class GenericTemplates {
                         .build();
                 })
             ).build();
+    }
+
+    static confirmationPopup(message, onConfirm = () => {}, icon = null) {
+        const popup = create("div")
+            .classes("popup", "flex-v")
+            .children(
+                create("div")
+                    .classes("flex", "center-children")
+                    .children(
+                        icon ? this.materialIcon(icon, "h1") : null,
+                        create("h1")
+                            .classes("confirmation-popup-title")
+                            .text(message)
+                            .build(),
+                    ).build(),
+                this.popupButtons(() => {
+                    onConfirm();
+                    UiActions.removePopupContainers();
+                }, () => {
+                    UiActions.removePopupContainers();
+                }, false, {
+                    cancel: UiText.get("no"),
+                    save: UiText.get("yes")
+                })
+            ).build();
+        const container = this.popupContainers([popup]);
+        const editor = document.getElementById("editor");
+        editor.appendChild(container);
     }
 }

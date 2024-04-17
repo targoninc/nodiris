@@ -58,6 +58,17 @@ export class NodeEditor {
         this.initialize();
     }
 
+    resetGraph() {
+        this.nodeTypes = [];
+        this.nodes = [];
+        this.globals = [];
+        this.position.value = {x: 0, y: 0};
+        this.zoomState.value = 1;
+        this.selectedNodes = [];
+        this.settings = DefaultEditorSettings;
+        this.graphInfo = DefaultEditorGraphinfo;
+    }
+
     stringify() {
         const circularCheckExclusionProps = ["type"];
         const base = JSON.parse(CustomStringifier.stringify(this, circularCheckExclusionProps));

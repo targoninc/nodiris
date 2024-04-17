@@ -295,7 +295,16 @@ export class NodeEditorDomRenderer {
                 create("div")
                     .classes("flex", "spaced")
                     .children(
-                        create("div").build(),
+                        create("div")
+                            .classes("flex")
+                            .children(
+                                GenericTemplates.button(UiText.get("resetGraph"), () => {
+                                    GenericTemplates.confirmationPopup(UiText.get("resetGraphConfirmation"), () => {
+                                        this.editor.resetGraph();
+                                        this.editor.rerender(true);
+                                    }, "report");
+                                }, "reset_wrench"),
+                            ).build(),
                         create("div")
                             .classes("flex")
                             .children(
@@ -581,7 +590,7 @@ export class NodeEditorDomRenderer {
 
     #renderLoginPopup(onLogin) {
         const popup = create("div")
-            .classes("input-popup", "flex-v")
+            .classes("popup", "flex-v")
             .children(
                 create("div")
                     .classes("input-popup-title")
@@ -664,7 +673,7 @@ export class NodeEditorDomRenderer {
                 }, "add"),
                 GenericTemplates.button(UiText.get("removeSection"), () => {
                     this.editor.removeGlobalSection(global.name);
-                    this.editor.rerender();
+                    this.editor.rerender(true);
                 }, "delete"),
             ).build();
     }

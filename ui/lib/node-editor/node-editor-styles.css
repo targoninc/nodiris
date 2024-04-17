@@ -330,7 +330,7 @@ button:hover {
     display: flex;
 }
 
-.input-popup {
+.popup {
     margin: auto;
     width: max-content;
     color: var(--editor-text);
@@ -378,6 +378,10 @@ input.disabled {
 h1 {
     margin: 0;
     font-size: calc(var(--editor-font-size) * 2);
+}
+
+h1.material-symbols-outlined {
+    font-size: calc(var(--editor-font-size) * 2) !important;
 }
 
 h2 {

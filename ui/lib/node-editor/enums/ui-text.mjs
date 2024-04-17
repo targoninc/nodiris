@@ -44,6 +44,10 @@ export const languageTextMap = {
         delete: "Delete",
         successDeletingGraph: "Successfully deleted graph",
         successSavingGraph: "Successfully saved graph",
+        resetGraph: "Reset graph",
+        resetGraphConfirmation: "Reset graph?",
+        no: "No",
+        yes: "Yes",
     },
     de: {
         login: "Anmelden",
@@ -87,6 +91,10 @@ export const languageTextMap = {
         delete: "Löschen",
         successDeletingGraph: "Graph erfolgreich gelöscht",
         successSavingGraph: "Graph erfolgreich gespeichert",
+        resetGraph: "Graph zurücksetzen",
+        resetGraphConfirmation: "Graph zurücksetzen?",
+        no: "Nein",
+        yes: "Ja",
     }
 }
 
