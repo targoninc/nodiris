@@ -255,6 +255,10 @@ export class NodeEditor {
         return this.getAllFields().find(field => field.connections.find(connection => connection.from === id));
     }
 
+    getIncomingFieldConnections(id) {
+        return this.getAllFields().filter(field => field.connections.find(connection => connection.to === id));
+    }
+
     fieldIsReadonly(id) {
         const field = this.getFieldById(id);
         return this.fieldHasIncomingConnection(id) && field.type !== ValueTypes.function;

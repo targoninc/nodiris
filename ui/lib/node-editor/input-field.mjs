@@ -48,7 +48,6 @@ export class InputField {
     getDomNode() {
         const domNode = document.getElementById(this.id);
         if (!domNode) {
-            console.error(`Node with id ${this.id} not found`);
             return {
                 classList: {
                     add: () => {
@@ -133,11 +132,14 @@ export class InputField {
 
     calculateOutValue(value) {
         if (this.type === ValueTypes.function) {
-            const x = value;
+            const i = store().get(StoreKeys.nodeEditor).getIncomingFieldConnections(this.id).map(field => field.outValue);
+            const s = value;
+            const t = Date.now();
+            const f = this;
             try {
                 return eval(this.value);
             } catch (e) {
-                console.error(e);
+                console.warn(`Error in function ${this.value}:`, e);
                 return value;
             }
         } else {

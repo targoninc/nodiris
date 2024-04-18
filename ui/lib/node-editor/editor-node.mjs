@@ -200,7 +200,6 @@ export class EditorNode {
     getDomNode() {
         const domNode = document.getElementById(this.id);
         if (!domNode) {
-            console.error(`Node with id ${this.id} not found`);
             return {
                 classList: {
                     add: () => {

@@ -54,6 +54,15 @@
 
 # How do functions work?
 
+## Available Variables
+
+`i` - Input values
+`s` - Own value (the function text itself)
+`t` - Current time
+`f` - The current field object
+
+## Time
+
 When detecting "Date.now()" inside a function, the function will be updated every 100ms.
 This is paused if any input has focus and in some other cases.
 
