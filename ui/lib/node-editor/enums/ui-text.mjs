@@ -48,6 +48,7 @@ export const languageTextMap = {
         resetGraphConfirmation: "Reset graph?",
         no: "No",
         yes: "Yes",
+        loginHint: "If you log in, you can save your graphs to the cloud and access them from anywhere.",
     },
     de: {
         login: "Anmelden",
@@ -95,6 +96,7 @@ export const languageTextMap = {
         resetGraphConfirmation: "Graph zurücksetzen?",
         no: "Nein",
         yes: "Ja",
+        loginHint: "Wenn du dich anmeldest, kannst du deine Graphen in der Cloud speichern und von überall darauf zugreifen.",
     }
 }
 

@@ -48,6 +48,10 @@
     z-index: 1;
 }
 
+.node-editor.grabbing {
+    cursor: grabbing;
+}
+
 .node-editor.selecting {
     cursor: default;
 }
@@ -242,6 +246,7 @@ button:hover {
     border: 1px solid var(--node-border);
     width: 1em;
     height: 1em;
+    cursor: pointer;
 }
 
 .global-section-field, .node-editor-node-type-field {
@@ -314,9 +319,15 @@ button:hover {
 }
 
 .icon {
-    filter: invert(1);
+    filter: invert(1) hue-rotate(180deg);
     width: 1.2em;
     height: 1.2em;
+}
+
+.logo {
+    width: min(100%, 200px);
+    height: auto;
+    margin: 0 auto;
 }
 
 .popup-container {

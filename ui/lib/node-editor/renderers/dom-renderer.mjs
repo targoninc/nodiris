@@ -126,12 +126,7 @@ export class NodeEditorDomRenderer {
                 this.editor.openContextMenu(e, menuClassState, menuPositionState, this.#renderFrame.bind(this, true));
             })
             .children(
-                create("div")
-                    .classes("node-editor-grid")
-                    .id("node-editor-grid")
-                    .children(
-                        this.#generateEditorGrid(this.editor.position.value.x, this.editor.position.value.y)
-                    ).build(),
+                this.#editorGrid(this.editor.position),
                 create("div")
                     .classes("node-editor-nodes")
                     .id("node-editor-nodes")
@@ -147,9 +142,20 @@ export class NodeEditorDomRenderer {
             ).build();
     }
 
-    #generateEditorGrid(xOff, yOff) {
-        const zoom = this.editor.zoomState.value;
-        return this.#generateGridLines(xOff, yOff, 100 * zoom)
+    #editorGrid(positionState) {
+        let template = signal(nullElement());
+        const update = (pos) => {
+            template.value = create("div")
+                .classes("node-editor-grid")
+                .id("node-editor-grid")
+                .children(
+                    this.#generateGridLines(pos.x, pos.y, 100 * this.editor.zoomState.value)
+                ).build();
+        };
+        positionState.subscribe(update);
+        update(positionState.value);
+
+        return template;
     }
 
     #generateGridLines(xOff, yOff, resolution) {
@@ -370,6 +376,12 @@ export class NodeEditorDomRenderer {
         return create("div")
             .classes("flex-v")
             .children(
+                ifjs(authenticated, create("span")
+                    .text(UiText.get("loginHint"))
+                    .build(), true),
+                ifjs(authenticated, Icon.asImage("logo")
+                    .classes("logo")
+                    .build(), true),
                 ifjs(authenticated, create("div")
                     .classes("flex")
                     .children(

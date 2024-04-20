@@ -67,6 +67,7 @@ export class NodeEditor {
         this.selectedNodes = [];
         this.settings = DefaultEditorSettings;
         this.graphInfo = DefaultEditorGraphinfo;
+        this.setTitle(this.graphInfo.name);
     }
 
     stringify() {
@@ -82,6 +83,7 @@ export class NodeEditor {
     initialize() {
         this.setTheme(this.settings.theme);
         this.loadAuthentication();
+        this.setTitle(this.graphInfo.name);
     }
 
     loadAuthentication() {
@@ -504,16 +506,19 @@ export class NodeEditor {
             x: this.position.value.x,
             y: this.position.value.y
         };
+        const nodeEditorDom = document.querySelector(".node-editor");
+        nodeEditorDom.classList.add("grabbing");
         const move = e => {
             this.position.value = {
                 x: editorStart.x + e.clientX - mouseStart.x,
                 y: editorStart.y + e.clientY - mouseStart.y
             };
-            this.rerender();
+            //this.rerender();
         };
         const stop = () => {
             document.removeEventListener("mousemove", move);
             document.removeEventListener("mouseup", stop);
+            nodeEditorDom.classList.remove("grabbing");
         };
         document.addEventListener("mousemove", move);
         document.addEventListener("mouseup", stop);
@@ -567,6 +572,11 @@ export class NodeEditor {
 
     setGraphName(name) {
         this.graphInfo.name = name;
+        this.setTitle(this.graphInfo.name);
+    }
+
+    setTitle(title) {
+        document.title = 'Nodiris - ' + title;
     }
 
     static fromJSON(parse) {
@@ -607,6 +617,7 @@ export class NodeEditor {
         this.settings = parse.settings;
         this.graphInfo = parse.graphInfo;
         this.selectedNodes = [];
+        this.setTitle(this.graphInfo.name);
     }
 
     handleNodeClick(e, node) {

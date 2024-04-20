@@ -24,24 +24,14 @@ export class Api {
                 password
             })
         });
-        if (res.status !== 200) {
-            return {
-                error: await res.text()
-            };
-        }
-        return await res.json();
+        return await Api.basicResponseHandling(res);
     }
 
     static async isAuthorized() {
         const res = await fetch(`/api/isAuthorized`, {
             credentials: 'include'
         });
-        if (res.status !== 200) {
-            return {
-                error: await res.text()
-            };
-        }
-        return await res.json();
+        return await Api.basicResponseHandling(res);
     }
 
     static async logout() {
@@ -49,12 +39,7 @@ export class Api {
             method: 'POST',
             credentials: 'include'
         });
-        if (res.status !== 200) {
-            return {
-                error: await res.text()
-            };
-        }
-        return await res.json();
+        return await Api.basicResponseHandling(res);
     }
 
     static async saveAvatar(avatar) {
@@ -69,14 +54,7 @@ export class Api {
                 avatar
             })
         });
-        if (res.status !== 200) {
-            const text = await res.text();
-            UiActions.toast(text, "error");
-            return {
-                error: text
-            };
-        }
-        return {};
+        return await Api.basicResponseHandling(res, true);
     }
 
     static async saveGraph(json) {
@@ -91,14 +69,7 @@ export class Api {
                 graph: json
             })
         });
-        if (res.status !== 200) {
-            const text = await res.text();
-            UiActions.toast(text, "error");
-            return {
-                error: text
-            };
-        }
-        return await res.json();
+        return await Api.basicResponseHandling(res);
     }
 
     static async getUserGraphs() {
@@ -110,14 +81,7 @@ export class Api {
             },
             credentials: 'include',
         });
-        if (res.status !== 200) {
-            const text = await res.text();
-            UiActions.toast(text, "error");
-            return {
-                error: text
-            };
-        }
-        return await res.json();
+        return await Api.basicResponseHandling(res);
     }
 
     static async deleteGraph(id) {
@@ -132,6 +96,10 @@ export class Api {
                 id
             })
         });
+        return await Api.basicResponseHandling(res, true);
+    }
+
+    static async basicResponseHandling(res, doesNotExpectJson = false) {
         if (res.status !== 200) {
             const text = await res.text();
             UiActions.toast(text, "error");
@@ -139,6 +107,6 @@ export class Api {
                 error: text
             };
         }
-        return {};
+        return doesNotExpectJson ? {} : await res.json();
     }
 }

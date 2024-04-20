@@ -69,3 +69,7 @@ This is paused if any input has focus and in some other cases.
 # Exporting and importing
 
 You can export and import your graph by clicking the "Download JSON" and "Upload JSON" buttons respectively.
+
+# Credits
+
+- Font used in Logo - [Excon by Indian Type Foundry](https://www.fontshare.com/fonts/excon)
