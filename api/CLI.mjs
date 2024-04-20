@@ -1,3 +1,5 @@
+import readline from "readline";
+
 export class CLI {
     static color(text, color, newLine = true) {
         process.stdout.write(`\x1b[${color}m${text}\x1b[0m${newLine ? "\n" : ""}`);
@@ -37,14 +39,20 @@ export class CLI {
         }
     }
 
+    static rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+        terminal: false
+    });
+
     static rewrite(text) {
-        process.stdout.clearLine();
-        process.stdout.cursorTo(0);
-        process.stdout.write(text);
+        readline.clearLine(CLI.rl, 0);
+        readline.cursorTo(CLI.rl, 0);
+        this.rl.write(text);
     }
 
     static clear() {
-        process.stdout.clearLine();
-        process.stdout.cursorTo(0);
+        readline.clearLine(CLI.rl, 0);
+        readline.cursorTo(CLI.rl, 0);
     }
 }
