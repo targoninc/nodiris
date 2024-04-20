@@ -362,6 +362,9 @@ export class NodeEditorDomRenderer {
         const ownGraphs = StoreKeys.create(StoreKeys.ownGraphs, this.editor.userGraphs ?? []);
         const loading = signal(false);
         user.subscribe(u => {
+            if (loading.value) {
+                return;
+            }
             if (u) {
                 loading.value = true;
                 Api.getUserGraphs().then(res => {
