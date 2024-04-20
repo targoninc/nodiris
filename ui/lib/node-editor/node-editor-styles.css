@@ -39,6 +39,15 @@
     line-height: 1.5;
 }
 
+a {
+    color: var(--outgoing-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
 .node-editor {
     position: absolute;
     width: 100%;

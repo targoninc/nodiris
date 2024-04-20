@@ -379,12 +379,6 @@ export class NodeEditorDomRenderer {
         return create("div")
             .classes("flex-v")
             .children(
-                ifjs(authenticated, create("span")
-                    .text(UiText.get("loginHint"))
-                    .build(), true),
-                ifjs(authenticated, Icon.asImage("logo")
-                    .classes("logo")
-                    .build(), true),
                 ifjs(authenticated, create("div")
                     .classes("flex")
                     .children(
@@ -403,7 +397,17 @@ export class NodeEditorDomRenderer {
                     .text("Graphs")
                     .build()),
                 ifjs(loading, GenericTemplates.spinner()),
-                ifjs(loading, this.#renderGraphList(ownGraphs), true)
+                ifjs(loading, this.#renderGraphList(ownGraphs), true),
+                ifjs(authenticated, create("span")
+                    .text(UiText.get("loginHint"))
+                    .build(), true),
+                create("span")
+                    .text("Version 1.1")
+                    .build(),
+                GenericTemplates.link(UiText.get("sourceCode"), "https://github.com/targoninc/nodiris/"),
+                Icon.asImage("logo")
+                    .classes("logo")
+                    .build(),
             ).build();
     }
 

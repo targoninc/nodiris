@@ -290,6 +290,21 @@ export class GenericTemplates {
         return base.build();
     }
 
+    static link(text, href, classes = []) {
+        const isExternal = href.startsWith("http");
+
+        return create("a")
+            .classes("link", "flex", ...classes)
+            .attributes("href", href)
+            .target("_blank")
+            .children(
+                isExternal ? this.materialIcon("open_in_new") : null,
+                create("span")
+                    .text(text)
+                    .build()
+            ).build();
+    }
+
     static spinner() {
         const circleCount = 4;
         const delay = 0.2;
