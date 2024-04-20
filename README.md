@@ -57,8 +57,11 @@
 ## Available Variables
 
 `i` - Input values
+
 `s` - Own value (the function text itself)
+
 `t` - Current time
+
 `f` - The current field object
 
 ## Time
@@ -69,6 +72,13 @@ This is paused if any input has focus and in some other cases.
 # Exporting and importing
 
 You can export and import your graph by clicking the "Download JSON" and "Upload JSON" buttons respectively.
+
+When the deployed instance supports authentication, you can also save your graph to the server by clicking the "Save to cloud" button.
+
+# Available languages
+
+- English
+- German
 
 # Credits
 
