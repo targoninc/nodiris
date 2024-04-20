@@ -134,7 +134,7 @@ export class NodeEditorDomRenderer {
                     .children(...this.editor.nodes.map(node => this.#renderNode(node, editorSize)))
                     .build(),
                 this.#renderEditorSidePane(this.panelCollapsedState),
-                this.editor.authenticationEnabled ? this.#renderEditorUserSidePane(this.userPanelCollapsedState) : null,
+                ifjs(this.editor.authenticationEnabled, this.#renderEditorUserSidePane(this.userPanelCollapsedState)),
                 this.#renderEditorMenu(menuPositionState, menuClassState, editorSize),
                 create("div")
                     .classes("toast-container")
