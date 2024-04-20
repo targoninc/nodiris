@@ -6,7 +6,7 @@ import {Keymap} from "../keymap.mjs";
 import {Auth} from "../api/auth.mjs";
 import {Api} from "../api/api.mjs";
 import {ImageProcessor} from "../utilities/image-processor.mjs";
-import {UiActions} from "./ui-actions.mjs";
+import {UiActions} from "../utilities/ui-actions.mjs";
 import {GenericTemplates} from "../templates/generic.templates.mjs";
 import {NodeType} from "../node-type.mjs";
 import {StoreKeys} from "../enums/store-keys.mjs";
@@ -401,10 +401,14 @@ export class NodeEditorDomRenderer {
                 ifjs(authenticated, create("span")
                     .text(UiText.get("loginHint"))
                     .build(), true),
-                create("span")
-                    .text("Version 1.1")
-                    .build(),
-                GenericTemplates.link(UiText.get("sourceCode"), "https://github.com/targoninc/nodiris/"),
+                create("div")
+                    .classes("flex", "center-children")
+                    .children(
+                        GenericTemplates.link(UiText.get("sourceCode"), "https://github.com/targoninc/nodiris/"),
+                        create("span")
+                            .text("Version 1.1")
+                            .build(),
+                    ).build(),
                 Icon.asImage("logo")
                     .classes("logo")
                     .build(),
@@ -431,7 +435,7 @@ export class NodeEditorDomRenderer {
                                     .children(
                                         GenericTemplates.infoPill(json.graphInfo.public ? UiText.get("public") : UiText.get("private"),
                                             json.graphInfo.public ? "lock_open" : "lock",
-                                            UiText.get("graphOnlyVisibleToYou")),
+                                            json.graphInfo.public ? UiText.get("publicGraph") : UiText.get("privateGraph")), // TODO: fix graphinfo access (like name)
                                         create("h2")
                                             .text(json.graphInfo.name)
                                             .build(),
@@ -497,17 +501,15 @@ export class NodeEditorDomRenderer {
                     .classes("flex", "spaced", "center-children")
                     .children(
                         create("h1")
-                            .text(this.editor.graphInfo.name)
+                            .text(this.editor.graphInfo.value.name)
                             .onclick(() => {
-                                GenericTemplates.inputPopup(UiText.get("graphName"), this.editor.graphInfo.name, name => {
+                                GenericTemplates.inputPopup(UiText.get("graphName"), this.editor.graphInfo.value.name, name => {
                                     this.editor.setGraphName(name);
                                     this.editor.rerender(true);
                                 });
                             })
                             .build(),
-                        GenericTemplates.infoPill(this.editor.graphInfo.public ? UiText.get("public") : UiText.get("private"),
-                            this.editor.graphInfo.public ? "lock_open" : "lock",
-                            UiText.get("graphOnlyVisibleToYou")),
+                        this.#renderPublicPrivateInfo()
                     ).build(),
                 create("div")
                     .classes("flex")
@@ -516,7 +518,7 @@ export class NodeEditorDomRenderer {
                             UiActions.copy(this.editor.stringify());
                         }, "content_copy"),
                         GenericTemplates.button(UiText.get("download"), () => {
-                            UiActions.download(this.editor.stringify(), `graph-${this.editor.graphInfo.name}.json`);
+                            UiActions.download(this.editor.stringify(), `graph-${this.editor.graphInfo.value.name}.json`);
                         }, "download"),
                         GenericTemplates.button(uploadTextState, () => this.editor.uploadJsonHandler(uploadIconState, uploadTextState), uploadIconState),
                     ).build(),
@@ -533,6 +535,27 @@ export class NodeEditorDomRenderer {
                     }
                 ])
             ).build();
+    }
+
+    #renderPublicPrivateInfo() {
+        const publicState = signal(this.editor.graphInfo.value.public);
+        const publicText = signal(publicState.value ? UiText.get("public") : UiText.get("private"));
+        const publicIcon = signal(publicState.value ? "lock_open" : "lock");
+        const publicTitle = signal(publicState.value ? UiText.get("publicGraph") : UiText.get("privateGraph"));
+        const updatePublic = () => {
+            publicState.value = this.editor.graphInfo.value.public;
+            publicText.value = publicState.value ? UiText.get("public") : UiText.get("private");
+            publicIcon.value = publicState.value ? "lock_open" : "lock";
+            publicTitle.value = publicState.value ? UiText.get("publicGraph") : UiText.get("privateGraph");
+        };
+        this.editor.graphInfo.subscribe(updatePublic);
+
+        return GenericTemplates.infoPill(publicText, publicIcon, publicTitle, () => {
+            this.editor.graphInfo.value = {
+                ...this.editor.graphInfo.value,
+                public: !this.editor.graphInfo.value.public
+            };
+        });
     }
 
     #renderNodeTypesSection() {
@@ -884,15 +907,19 @@ export class NodeEditorDomRenderer {
             xState.value = position.x + "px";
             yState.value = position.y + "px";
         };
+        const multipleSelected = this.editor.selectedNodes.length > 1;
 
         return create("div")
             .classes("menu", classState)
             .styles("left", xState, "top", yState)
             .children(
-                this.#renderMenuItem(UiText.get("removeNode"), () => {
+                multipleSelected ? null : this.#renderMenuItem(UiText.get("removeNode"), () => {
                     this.editor.removeNodeById(node.id);
                     this.editor.rerender(true);
                 }, "delete"),
+                multipleSelected ? this.#renderMenuItem(UiText.get("removeSelected"), () => {
+                    this.editor.removeSelectedNodes();
+                }, "delete") : null,
                 this.#renderMenuItem(UiText.get("duplicateNode"), () => {
                     this.editor.duplicateNode(node);
                     this.editor.rerender(true);

@@ -1,5 +1,5 @@
 import {create, signal, store} from "https://fjs.targoninc.com/f.js";
-import {UiActions} from "../renderers/ui-actions.mjs";
+import {UiActions} from "../utilities/ui-actions.mjs";
 import {ValueTypes} from "../value-types.mjs";
 import {StoreKeys} from "../enums/store-keys.mjs";
 import {UiText} from "../enums/ui-text.mjs";
@@ -168,10 +168,15 @@ export class GenericTemplates {
             .build();
     }
 
-    static infoPill(text, icon = null, title = null) {
+    static infoPill(text, icon = null, title = null, onclick = null) {
         return create("div")
-            .classes("info-pill")
+            .classes("info-pill", onclick ? "clickable" : "_")
             .title(title)
+            .onclick(() => {
+                if (onclick) {
+                    onclick();
+                }
+            })
             .children(
                 icon ? this.materialIcon(icon) : null,
                 create("span")

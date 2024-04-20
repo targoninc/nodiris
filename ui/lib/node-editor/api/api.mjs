@@ -1,4 +1,4 @@
-import {UiActions} from "../renderers/ui-actions.mjs";
+import {UiActions} from "../utilities/ui-actions.mjs";
 
 export class Api {
     static async authenticationEnabled() {

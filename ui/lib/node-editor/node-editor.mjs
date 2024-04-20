@@ -34,7 +34,7 @@ export class NodeEditor {
      * @param settings {DefaultEditorSettings | Object}
      */
     constructor(graphInfo = {}, types = [], nodes = [], globals = [], settings = DefaultEditorSettings) {
-        this.graphInfo = graphInfo ?? DefaultEditorGraphinfo;
+        this.graphInfo = signal(graphInfo ?? DefaultEditorGraphinfo);
         this.nodeTypes = types;
         this.nodes = nodes;
         this.globals = globals;
@@ -66,8 +66,8 @@ export class NodeEditor {
         this.zoomState.value = 1;
         this.selectedNodes = [];
         this.settings = DefaultEditorSettings;
-        this.graphInfo = DefaultEditorGraphinfo;
-        this.setTitle(this.graphInfo.name);
+        this.graphInfo = signal(DefaultEditorGraphinfo);
+        this.setTitle(this.graphInfo.value.name);
     }
 
     stringify() {
@@ -83,7 +83,7 @@ export class NodeEditor {
     initialize() {
         this.setTheme(this.settings.theme);
         this.loadAuthentication();
-        this.setTitle(this.graphInfo.name);
+        this.setTitle(this.graphInfo.value.name);
     }
 
     loadAuthentication() {
@@ -571,8 +571,11 @@ export class NodeEditor {
     }
 
     setGraphName(name) {
-        this.graphInfo.name = name;
-        this.setTitle(this.graphInfo.name);
+        this.graphInfo.value = {
+            ...this.graphInfo.value,
+            name
+        };
+        this.setTitle(this.graphInfo.value.name);
     }
 
     setTitle(title) {
@@ -615,9 +618,9 @@ export class NodeEditor {
             }));
         });
         this.settings = parse.settings;
-        this.graphInfo = parse.graphInfo;
+        this.graphInfo = signal(parse.graphInfo);
         this.selectedNodes = [];
-        this.setTitle(this.graphInfo.name);
+        this.setTitle(this.graphInfo.value.name);
     }
 
     handleNodeClick(e, node) {

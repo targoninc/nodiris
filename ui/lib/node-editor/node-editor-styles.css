@@ -48,6 +48,10 @@ a:hover {
     text-decoration: underline;
 }
 
+.clickable {
+    cursor: pointer;
+}
+
 .node-editor {
     position: absolute;
     width: 100%;
