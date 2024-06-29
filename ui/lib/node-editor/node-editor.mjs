@@ -81,7 +81,6 @@ export class NodeEditor {
     }
 
     initialize() {
-        this.setTheme(this.settings.theme);
         this.loadAuthentication();
         this.setTitle(this.graphInfo.value.name);
     }
@@ -264,28 +263,6 @@ export class NodeEditor {
     fieldIsReadonly(id) {
         const field = this.getFieldById(id);
         return this.fieldHasIncomingConnection(id) && field.type !== ValueTypes.function;
-    }
-
-    setTheme(theme) {
-        this.settings.theme = theme;
-        this.removeThemeCss();
-        this.addThemeCss();
-    }
-
-    removeThemeCss() {
-        const stylesheets = document.querySelectorAll("link");
-        for (const stylesheet of stylesheets) {
-            if (stylesheet.href.includes("/themes")) {
-                stylesheet.remove();
-            }
-        }
-    }
-
-    addThemeCss() {
-        const link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = window.location.origin + `/lib/node-editor/themes/${this.settings.theme}.css`;
-        document.head.appendChild(link);
     }
 
     startFieldConnection(sourceField) {
@@ -559,10 +536,6 @@ export class NodeEditor {
 
     toggleFieldConnections() {
         this.settings.showFieldConnections = !this.settings.showFieldConnections;
-    }
-
-    toggleTheme() {
-        this.setTheme(this.settings.theme === "dark" ? "light" : "dark");
     }
 
     toggleGrid() {

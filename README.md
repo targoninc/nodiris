@@ -46,8 +46,6 @@
 
 ## Shortcuts
 
-`t` - Toggle theme
-
 `g` - Toggle grid
 
 `c` - Toggle connection lines between fields
