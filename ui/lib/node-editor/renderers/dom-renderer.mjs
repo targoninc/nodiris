@@ -568,53 +568,55 @@ export class NodeEditorDomRenderer {
                         this.editor.rerender(true);
                     });
                 }, "add"),
-                ...this.editor.nodeTypes.map(nodeType => {
-                    return create("div")
-                        .classes("node-editor-node-type", "flex-v")
-                        .children(
-                            create("h1")
-                                .text(nodeType.name)
-                                .build(),
-                            create("div")
-                                .classes("flex")
+                ...this.editor.nodeTypes.map(nodeType => this.nodeType(nodeType))
+            ).build();
+    }
+
+    nodeType(nodeType) {
+        return create("div")
+            .classes("node-editor-node-type", "flex-v")
+            .children(
+                create("h1")
+                    .text(nodeType.name)
+                    .build(),
+                create("div")
+                    .classes("flex")
+                    .children(
+                        GenericTemplates.button(UiText.get("addField"), () => {
+                            GenericTemplates.inputPopup(UiText.get("fieldName"), "", name => {
+                                GenericTemplates.dropdownPopup(UiText.get("fieldType"), Object.values(ValueTypes), type => {
+                                    nodeType.addField(new InputField(name, type, null));
+                                    this.editor.rerender(true);
+                                });
+                            });
+                        }, "add"),
+                        GenericTemplates.button(UiText.get("removeNodeType"), () => {
+                            this.editor.removeNodeTypeByName(nodeType.name);
+                            this.editor.rerender(true);
+                        }, "delete")
+                    ).build(),
+                create("div")
+                    .classes("flex-v")
+                    .children(
+                        ...nodeType.fields.map(field => {
+                            return create("div")
+                                .classes("node-editor-node-type-field")
                                 .children(
-                                    GenericTemplates.button(UiText.get("addField"), () => {
-                                        GenericTemplates.inputPopup(UiText.get("fieldName"), "", name => {
-                                            GenericTemplates.dropdownPopup(UiText.get("fieldType"), Object.values(ValueTypes), type => {
-                                                nodeType.addField(new InputField(name, type, null));
-                                                this.editor.rerender(true);
-                                            });
-                                        });
-                                    }, "add"),
-                                    GenericTemplates.button(UiText.get("removeNodeType"), () => {
-                                        this.editor.removeNodeTypeByName(nodeType.name);
+                                    create("div")
+                                        .classes("flex", "center-children", "spaced")
+                                        .children(
+                                            create("h2")
+                                                .text(field.name)
+                                                .build(),
+                                            GenericTemplates.infoPill(field.type, ValueTypeIcon.get(field.type), UiText.get("fieldType")),
+                                        ).build(),
+                                    GenericTemplates.button(UiText.get("removeField"), () => {
+                                        nodeType.removeFieldByName(field.name);
                                         this.editor.rerender(true);
-                                    }, "delete")
-                                ).build(),
-                            create("div")
-                                .classes("flex-v")
-                                .children(
-                                    ...nodeType.fields.map(field => {
-                                        return create("div")
-                                            .classes("node-editor-node-type-field")
-                                            .children(
-                                                create("div")
-                                                    .classes("flex", "center-children", "spaced")
-                                                    .children(
-                                                        create("h2")
-                                                            .text(field.name)
-                                                            .build(),
-                                                        GenericTemplates.infoPill(field.type, ValueTypeIcon.get(field.type), UiText.get("fieldType")),
-                                                    ).build(),
-                                                GenericTemplates.button(UiText.get("removeField"), () => {
-                                                    nodeType.removeFieldByName(field.name);
-                                                    this.editor.rerender(true);
-                                                }, "delete"),
-                                            ).build();
-                                    }),
-                                ).build(),
-                        ).build();
-                })
+                                    }, "delete"),
+                                ).build();
+                        }),
+                    ).build(),
             ).build();
     }
 
