@@ -24,4 +24,14 @@ export class NodeType {
     removeFieldByName(name) {
         this.fields = this.fields.filter(field => field.name !== name);
     }
+
+    setFieldType(name, type) {
+        const field = this.fields.find(field => field.name === name);
+        field.type = type;
+    }
+
+    setFieldDefault(name, defaultValue) {
+        const field = this.fields.find(field => field.name === name);
+        field.default = defaultValue;
+    }
 }

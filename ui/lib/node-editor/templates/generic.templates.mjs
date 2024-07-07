@@ -109,7 +109,7 @@ export class GenericTemplates {
         });
 
         return create("div")
-            .classes("flex-v")
+            .classes("flex-v", "node-editor-tab-switcher-container")
             .children(
                 create("div")
                     .classes("node-editor-tab-switcher")
@@ -221,7 +221,7 @@ export class GenericTemplates {
                 create("div")
                     .classes("node-field-value")
                     .children(
-                        this.input(field, value, onChange, errorState),
+                        this.fieldInput(field, value, onChange, errorState),
                         create("span")
                             .classes("node-field-error")
                             .text(errorState)
@@ -243,7 +243,7 @@ export class GenericTemplates {
      * @param errorState {FjsObservable}
      * @returns {*}
      */
-    static input(field, value, onChange, errorState = signal("")) {
+    static fieldInput(field, value, onChange, errorState = signal("")) {
         let type = field.type;
         if (type === ValueTypes.boolean) {
             type = 'checkbox';
@@ -293,6 +293,32 @@ export class GenericTemplates {
         }
 
         return base.build();
+    }
+
+    static input(type, label, value, onChange, errorState = signal("")) {
+        return create("div")
+            .classes("flex", "spaced")
+            .children(
+                create("input")
+                    .classes("node-field-input")
+                    .id("input")
+                    .type(type)
+                    .value(value)
+                    .placeholder(label)
+                    .onkeydown(e => {
+                        if (e.key === "Enter") {
+                            onChange(e.target.value);
+                        }
+                    })
+                    .onblur(e => {
+                        onChange(e.target.value);
+                    })
+                    .build(),
+                create("span")
+                    .classes("node-field-error")
+                    .text(errorState)
+                    .build(),
+            ).build();
     }
 
     static link(text, href, classes = []) {

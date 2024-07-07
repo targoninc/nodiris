@@ -573,6 +573,7 @@ export class NodeEditorDomRenderer {
     }
 
     nodeType(nodeType) {
+
         return create("div")
             .classes("node-editor-node-type", "flex-v")
             .children(
@@ -599,21 +600,39 @@ export class NodeEditorDomRenderer {
                     .classes("flex-v")
                     .children(
                         ...nodeType.fields.map(field => {
+                            const nodeTypeFieldOptions = Object.values(ValueTypes).map(type => {
+                                return {
+                                    value: type,
+                                    text: type,
+                                    selected: type === field.type
+                                };
+                            });
+
                             return create("div")
-                                .classes("node-editor-node-type-field")
+                                .classes("flex-v", "node-editor-node-type-field")
                                 .children(
                                     create("div")
-                                        .classes("flex", "center-children", "spaced")
+                                        .classes("flex", "center-children")
                                         .children(
-                                            create("h2")
-                                                .text(field.name)
-                                                .build(),
-                                            GenericTemplates.infoPill(field.type, ValueTypeIcon.get(field.type), UiText.get("fieldType")),
-                                        ).build(),
-                                    GenericTemplates.button(UiText.get("removeField"), () => {
-                                        nodeType.removeFieldByName(field.name);
-                                        this.editor.rerender(true);
-                                    }, "delete"),
+                                            GenericTemplates.select(nodeTypeFieldOptions, e => {
+                                                const type = e.target.value;
+                                                nodeType.setFieldType(field.name, type);
+                                                this.editor.rerender();
+                                            }),
+                                            create("h2").text(field.name),
+                                        ),
+                                    create("div")
+                                        .classes("flex", "center-children")
+                                        .children(
+                                            GenericTemplates.input("text", UiText.get("defaultValue"), field.default, newDefault => {
+                                                nodeType.setFieldDefault(field.name, newDefault);
+                                                this.editor.rerender();
+                                            }),
+                                            GenericTemplates.button(UiText.get("removeField"), () => {
+                                                nodeType.removeFieldByName(field.name);
+                                                this.editor.rerender(true);
+                                            }, "delete"),
+                                        )
                                 ).build();
                         }),
                     ).build(),

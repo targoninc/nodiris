@@ -51,6 +51,7 @@ export const languageTextMap = {
         yes: "Yes",
         loginHint: "If you log in, you can save your graphs to the cloud and access them from anywhere.",
         sourceCode: "Source Code",
+        defaultValue: "Default value",
     },
     de: {
         login: "Anmelden",
@@ -101,6 +102,7 @@ export const languageTextMap = {
         yes: "Ja",
         loginHint: "Wenn du dich anmeldest, kannst du deine Graphen in der Cloud speichern und von überall darauf zugreifen.",
         sourceCode: "Quellcode",
+        defaultValue: "Standardwert",
     }
 }
 
