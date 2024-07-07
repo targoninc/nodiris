@@ -23,7 +23,9 @@ export class GenericTemplates {
                     const value = popup.querySelector(".input-popup-input").value;
                     UiActions.removePopupContainers();
                     onSave(value);
-                }, () => {}, false)
+                }, () => {
+                    UiActions.removePopupContainers();
+                }, false)
             ).build();
         const container = this.popupContainers([popup]);
         const editor = document.getElementById("editor");
@@ -60,7 +62,9 @@ export class GenericTemplates {
                     const value = popup.querySelector(".input-popup-input").value;
                     UiActions.removePopupContainers();
                     onSave(value);
-                }, () => {}, false)
+                }, () => {
+                    UiActions.removePopupContainers();
+                }, false)
             ).build();
         const container = this.popupContainers([popup]);
         const editor = document.getElementById("editor");
