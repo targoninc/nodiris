@@ -9,10 +9,7 @@
 # Screenshots
 
 ## Dark mode
-![Screenshot of the default graph](images/screenshot1.png)
-
-## Light mode
-![Screenshot of the default graph](images/screenshot2.png)
+![Screenshot](images/screenshot.png)
 
 # How to use
 
