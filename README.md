@@ -81,29 +81,4 @@ When the deployed instance supports authentication, you can also save your graph
 
 # CI/CD
 
-## Set up Github Actions Secrets
-
-- `REGISTRY_HOST` - The host of the registry (e.g. `ghcr.io`)
-- `REGISTRY_USER` - The username of the registry
-- `REGISTRY_PASS` - The password for the given username
-
-## Deployment
-
-The `docker-image.yml` workflow will push the image to the registry on every push to the `main` branch.
-You can then deploy it with a docker-compose file like this:
-
-```yaml
-services:
-  nodiris:
-    image: ${REGISTRY_HOST}/${IMAGE_NAME}:latest
-    container_name: NODIRIS
-    restart: always
-    environment:
-        - DEPLOYMENT_URL=${DEPLOYMENT_URL}
-        - MYSQL_URL=${MYSQL_URL}
-        - MYSQL_USER=${MYSQL_USER}
-        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-        - SESSION_SECRET=${SESSION_SECRET}
-    ports:
-      - "${PORT_NODIRIS}:3001"
-```
+Use the Dockerfile to build your image to deploy on any Docker host. Tools like Coolify support building Dockerfiles straight from source.
