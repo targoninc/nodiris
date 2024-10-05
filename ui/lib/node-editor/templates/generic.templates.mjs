@@ -1,5 +1,5 @@
 import {create, signal, store} from "https://fjs.targoninc.com/f.js";
-import {UiActions} from "../renderers/ui-actions.mjs";
+import {UiActions} from "../utilities/ui-actions.mjs";
 import {ValueTypes} from "../value-types.mjs";
 import {StoreKeys} from "../enums/store-keys.mjs";
 import {UiText} from "../enums/ui-text.mjs";
@@ -23,7 +23,9 @@ export class GenericTemplates {
                     const value = popup.querySelector(".input-popup-input").value;
                     UiActions.removePopupContainers();
                     onSave(value);
-                }, () => {}, false)
+                }, () => {
+                    UiActions.removePopupContainers();
+                }, false)
             ).build();
         const container = this.popupContainers([popup]);
         const editor = document.getElementById("editor");
@@ -60,7 +62,9 @@ export class GenericTemplates {
                     const value = popup.querySelector(".input-popup-input").value;
                     UiActions.removePopupContainers();
                     onSave(value);
-                }, () => {}, false)
+                }, () => {
+                    UiActions.removePopupContainers();
+                }, false)
             ).build();
         const container = this.popupContainers([popup]);
         const editor = document.getElementById("editor");
@@ -109,7 +113,7 @@ export class GenericTemplates {
         });
 
         return create("div")
-            .classes("flex-v")
+            .classes("flex-v", "node-editor-tab-switcher-container")
             .children(
                 create("div")
                     .classes("node-editor-tab-switcher")
@@ -168,10 +172,15 @@ export class GenericTemplates {
             .build();
     }
 
-    static infoPill(text, icon = null, title = null) {
+    static infoPill(text, icon = null, title = null, onclick = null) {
         return create("div")
-            .classes("info-pill")
+            .classes("info-pill", onclick ? "clickable" : "_")
             .title(title)
+            .onclick(() => {
+                if (onclick) {
+                    onclick();
+                }
+            })
             .children(
                 icon ? this.materialIcon(icon) : null,
                 create("span")
@@ -216,7 +225,7 @@ export class GenericTemplates {
                 create("div")
                     .classes("node-field-value")
                     .children(
-                        this.input(field, value, onChange, errorState),
+                        this.fieldInput(field, value, onChange, errorState),
                         create("span")
                             .classes("node-field-error")
                             .text(errorState)
@@ -238,7 +247,7 @@ export class GenericTemplates {
      * @param errorState {FjsObservable}
      * @returns {*}
      */
-    static input(field, value, onChange, errorState = signal("")) {
+    static fieldInput(field, value, onChange, errorState = signal("")) {
         let type = field.type;
         if (type === ValueTypes.boolean) {
             type = 'checkbox';
@@ -288,6 +297,47 @@ export class GenericTemplates {
         }
 
         return base.build();
+    }
+
+    static input(type, label, value, onChange, errorState = signal("")) {
+        return create("div")
+            .classes("flex", "spaced")
+            .children(
+                create("input")
+                    .classes("node-field-input")
+                    .id("input")
+                    .type(type)
+                    .value(value)
+                    .placeholder(label)
+                    .onkeydown(e => {
+                        if (e.key === "Enter") {
+                            onChange(e.target.value);
+                        }
+                    })
+                    .onblur(e => {
+                        onChange(e.target.value);
+                    })
+                    .build(),
+                create("span")
+                    .classes("node-field-error")
+                    .text(errorState)
+                    .build(),
+            ).build();
+    }
+
+    static link(text, href, classes = []) {
+        const isExternal = href.startsWith("http");
+
+        return create("a")
+            .classes("link", "flex", ...classes)
+            .attributes("href", href)
+            .target("_blank")
+            .children(
+                isExternal ? this.materialIcon("open_in_new") : null,
+                create("span")
+                    .text(text)
+                    .build()
+            ).build();
     }
 
     static spinner() {

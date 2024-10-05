@@ -11,7 +11,8 @@ export const languageTextMap = {
         download: "Download",
         public: "Public",
         private: "Private",
-        graphOnlyVisibleToYou: "This graph is only visible to you",
+        privateGraph: "This graph is only visible to you",
+        publicGraph: "This graph is publicly visible",
         selecting: "Selecting",
         loading: "Loading",
         addNodeType: "Add node type",
@@ -49,6 +50,8 @@ export const languageTextMap = {
         no: "No",
         yes: "Yes",
         loginHint: "If you log in, you can save your graphs to the cloud and access them from anywhere.",
+        sourceCode: "Source Code",
+        defaultValue: "Default value",
     },
     de: {
         login: "Anmelden",
@@ -59,7 +62,8 @@ export const languageTextMap = {
         download: "Herunterladen",
         public: "Öffentlich",
         private: "Privat",
-        graphOnlyVisibleToYou: "Dieser Graph ist nur für dich sichtbar",
+        privateGraph: "Dieser Graph ist nur für dich sichtbar",
+        publicGraph: "Dieser Graph ist öffentlich sichtbar",
         selecting: "Auswählen",
         loading: "Laden",
         addNodeType: "Knotentyp hinzufügen",
@@ -97,6 +101,8 @@ export const languageTextMap = {
         no: "Nein",
         yes: "Ja",
         loginHint: "Wenn du dich anmeldest, kannst du deine Graphen in der Cloud speichern und von überall darauf zugreifen.",
+        sourceCode: "Quellcode",
+        defaultValue: "Standardwert",
     }
 }
 

@@ -10,7 +10,7 @@ import {DefaultEditorGraphinfo} from "./lib/node-editor/default-editor-graphinfo
 
 const types = [
     new NodeType("Choice", [
-        new InputField("Message", ValueTypes.string, "", true),
+        new InputField("Message", ValueTypes.string, "Hi!", true),
         new InputField("Message function", ValueTypes.function, "", true),
     ], {
         canConnectTo: ["Narrator"],

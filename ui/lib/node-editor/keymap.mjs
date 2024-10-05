@@ -8,12 +8,6 @@ export const Keymap = {
             store().get(StoreKeys.nodeEditor).toggleFieldConnections();
         }
     },
-    toggleTheme: {
-        keys: ["t"],
-        action: () => {
-            store().get(StoreKeys.nodeEditor).toggleTheme();
-        }
-    },
     toggleGrid: {
         keys: ["g"],
         action: () => {

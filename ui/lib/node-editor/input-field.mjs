@@ -162,4 +162,19 @@ export class InputField {
                 return value;
         }
     }
+
+    setType(type) {
+        this.type = type;
+        if (this.type === ValueTypes.function && this.value.includes("Date.now()")) {
+            if (this.updateInterval) {
+                clearInterval(this.updateInterval);
+            }
+            this.updateInterval = setInterval(() => {
+                this.propagateValue();
+                store().get(StoreKeys.nodeEditor).rerender();
+            }, 100);
+        } else if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+        }
+    }
 }
