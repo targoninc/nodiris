@@ -116,6 +116,7 @@ export class NodeEditorDomRenderer {
                 }
             })
             .onwheel(e => {
+                // TODO: Also support trackpads
                 this.editor.zoom(e);
             })
             .ondblclick(() => {
